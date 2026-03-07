@@ -79,7 +79,9 @@ const App = () => {
         <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} onRoleSelect={handleRoleSelect} />
       )}
       <PageLoader onLoadComplete={() => setIsLoading(false)} />
-      {currentPage === 'home' && <Home onGetStarted={() => setCurrentPage('map')} setCurrentPage={setCurrentPage} />}
+      <div style={{ display: currentPage === 'home' ? 'block' : 'none' }}>
+        <Home onGetStarted={() => setCurrentPage('map')} setCurrentPage={setCurrentPage} />
+      </div>
       {currentPage === 'map' && (
         <MapView role={selectedRole || loggedInUser?.role} user={loggedInUser} setCurrentPage={setCurrentPage} onLogout={handleLogout} />
       )}
@@ -141,7 +143,7 @@ const App = () => {
         />
       )}
       {currentPage === 'signup' && (
-        <Signup onBack={() => setCurrentPage('home')} />
+        <Signup onBack={() => setCurrentPage('home')} onLoginSuccess={handleLoginSuccess} />
       )}
     </>
   )

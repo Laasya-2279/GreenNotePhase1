@@ -188,6 +188,13 @@ exports.login = async (req, res, next) => {
             success: true,
         });
 
+        // Fetch hospital name for HOSPITAL role users
+        let hospitalName;
+        if (user.role === 'HOSPITAL' && user.hospitalId) {
+            const hospital = await Hospital.findById(user.hospitalId).select('name');
+            hospitalName = hospital?.name;
+        }
+
         res.json({
             success: true,
             ...tokens,
@@ -198,6 +205,7 @@ exports.login = async (req, res, next) => {
                 name: user.name,
                 phone: user.phone,
                 hospitalId: user.hospitalId,
+                hospitalName,
                 ambulanceId: user.ambulanceId,
                 trafficOfficerId: user.trafficOfficerId,
                 isVerified: user.isVerified,

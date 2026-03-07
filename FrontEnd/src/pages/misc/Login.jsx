@@ -1,18 +1,40 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import AuroraWavesRedBackground from '../../components/AuroraWavesRedBackground';
 
 const accent = 'linear-gradient(135deg, #10b981, #3b82f6)';
 
+const LOGIN_CSS = `
+  @keyframes loginRingPulse {
+    0%   { box-shadow: 0 0 0 0px rgba(239,68,68,0.55), 0 0 24px rgba(239,68,68,0.30); }
+    60%  { box-shadow: 0 0 0 8px rgba(239,68,68,0), 0 0 32px rgba(239,68,68,0.18); }
+    100% { box-shadow: 0 0 0 0px rgba(239,68,68,0), 0 0 24px rgba(239,68,68,0.30); }
+  }
+  @keyframes loginShimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  .login-btn-idle {
+    animation: loginRingPulse 2.4s ease-in-out infinite;
+  }
+  .login-btn-shimmer-text {
+    background: linear-gradient(90deg, #fff 0%, #fca5a5 30%, #fff 50%, #fca5a5 70%, #fff 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: loginShimmer 2.8s linear infinite;
+  }
+`;
+
 const ROLES = [
-  { id: 'ambulance', label: '🚑 Ambulance Driver', color: '#ef4444' },
-  { id: 'hospital', label: '🏥 Hospital', color: '#10b981' },
-  { id: 'traffic', label: '🚦 Traffic Control', color: '#f59e0b' },
-  { id: 'public', label: '🚗 Public / Driver', color: '#3b82f6' },
-  { id: 'control_room', label: '🖥️ Control Room', color: '#8b5cf6' },
+  { id: 'ambulance', label: 'Ambulance Driver', color: '#ef4444' },
+  { id: 'hospital', label: 'Hospital', color: '#10b981' },
+  { id: 'traffic', label: 'Traffic Control', color: '#f59e0b' },
+  { id: 'public', label: 'Public / Driver', color: '#3b82f6' },
+  { id: 'control_room', label: 'Control Room', color: '#8b5cf6' },
 ];
 
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
 
 // Role mapping: backend uses uppercase, frontend uses lowercase
 const ROLE_MAP_TO_FRONTEND = {
@@ -52,6 +74,7 @@ async function loginApi(role, email, password) {
       name: user.name,
       phone: user.phone,
       role: frontendRole,
+      hospitalName: user.hospitalName || null,
       vehicleNumber: user.vehicleNumber || null,
     },
   };
@@ -102,32 +125,27 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
   return (
     <div className="relative w-full h-full flex items-center justify-center">
       <AuroraWavesRedBackground />
+      <style>{LOGIN_CSS}</style>
 
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 flex flex-col gap-7 w-full max-w-lg px-10 py-12 rounded-3xl shadow-2xl bg-white/5 backdrop-blur-xl border border-white/10 animate-fade-in"
+        className="relative z-10 flex flex-col gap-3 w-full max-w-lg px-10 py-7 rounded-3xl shadow-2xl bg-white/5 backdrop-blur-xl border border-white/10 animate-fade-in"
       >
         {/* Title */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="mb-2 animate-bounce-slow">
-            <svg width="60" height="60" viewBox="0 0 48 48" fill="none">
-              <circle cx="24" cy="24" r="22" fill="#10b981" fillOpacity="0.15" />
-              <path d="M16 24l6 6 10-10" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <h1 className="text-4xl font-extrabold text-white drop-shadow-lg tracking-tight">
+        <div className="flex flex-col items-center gap-1 text-center">
+          <h1 className="text-3xl font-extrabold text-white drop-shadow-lg tracking-tight">
             Sign in to{' '}
             <span style={{ background: accent, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }} className="bg-clip-text">
               GreenNote
             </span>
           </h1>
-          <p className="text-base text-rose-200/80">Access your dashboard</p>
+          <p className="text-sm text-rose-200/70">Access your dashboard</p>
         </div>
 
         {/* Role selector */}
         <div className="flex flex-col gap-2">
-          <label className="text-base font-semibold text-white/80 flex items-center gap-2">
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <label className="text-sm font-semibold text-white/80 flex items-center gap-2">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
               <path d="M17 20h5v-1a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-1a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Role
@@ -136,7 +154,7 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
             <button
               type="button"
               onClick={() => setShowRoleMenu((v) => !v)}
-              className="w-full h-14 px-5 rounded-xl bg-black/60 text-white text-base flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-rose-400/60 transition border"
+              className="w-full h-11 px-4 rounded-xl bg-black/60 text-white text-sm flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-rose-400/60 transition border"
               style={{ borderColor: `${roleInfo?.color}55` }}
             >
               <span className="flex items-center gap-2">
@@ -170,8 +188,8 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
 
         {/* Email */}
         <div className="flex flex-col gap-2 group">
-          <label htmlFor="email" className="text-base font-semibold text-white/80 flex items-center gap-2">
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <label htmlFor="email" className="text-sm font-semibold text-white/80 flex items-center gap-2">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
               <path d="M2 6.5A2.5 2.5 0 014.5 4h15A2.5 2.5 0 0122 6.5v11a2.5 2.5 0 01-2.5 2.5h-15A2.5 2.5 0 012 17.5v-11z" stroke="#3b82f6" strokeWidth="1.5" />
               <path d="M22 6.5l-10 7-10-7" stroke="#10b981" strokeWidth="1.5" />
             </svg>
@@ -182,7 +200,7 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
             name="email"
             type="email"
             autoComplete="username"
-            className="h-14 px-5 text-base rounded-xl bg-black/60 border border-rose-400/30 text-white placeholder:text-rose-200/40 focus:outline-none focus:ring-2 focus:ring-rose-400/60 focus:border-amber-400/80 transition shadow-sm group-hover:border-amber-400/60 group-focus-within:border-amber-400/80"
+            className="h-11 px-4 text-sm rounded-xl bg-black/60 border border-rose-400/30 text-white placeholder:text-rose-200/40 focus:outline-none focus:ring-2 focus:ring-rose-400/60 focus:border-amber-400/80 transition shadow-sm group-hover:border-amber-400/60 group-focus-within:border-amber-400/80"
             placeholder="you@email.com"
             value={form.email}
             onChange={handleChange}
@@ -192,8 +210,8 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
 
         {/* Password */}
         <div className="flex flex-col gap-2 group">
-          <label htmlFor="password" className="text-base font-semibold text-white/80 flex items-center gap-2">
-            <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+          <label htmlFor="password" className="text-sm font-semibold text-white/80 flex items-center gap-2">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
               <rect x="3" y="7" width="18" height="10" rx="5" stroke="#10b981" strokeWidth="1.5" />
               <circle cx="12" cy="12" r="3" stroke="#3b82f6" strokeWidth="1.5" />
             </svg>
@@ -205,7 +223,7 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
               name="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
-              className="h-14 px-5 text-base rounded-xl bg-black/60 border border-rose-400/30 text-white placeholder:text-rose-200/40 focus:outline-none focus:ring-2 focus:ring-rose-400/60 focus:border-amber-400/80 transition w-full pr-16 shadow-sm group-hover:border-amber-400/60 group-focus-within:border-amber-400/80"
+              className="h-11 px-4 text-sm rounded-xl bg-black/60 border border-rose-400/30 text-white placeholder:text-rose-200/40 focus:outline-none focus:ring-2 focus:ring-rose-400/60 focus:border-amber-400/80 transition w-full pr-16 shadow-sm group-hover:border-amber-400/60 group-focus-within:border-amber-400/80"
               placeholder="••••••••"
               value={form.password}
               onChange={handleChange}
@@ -237,11 +255,36 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
         <button
           type="submit"
           disabled={loading}
-          className="mt-1 py-4 rounded-2xl font-bold text-white text-xl shadow-lg transition-all hover:scale-105 hover:shadow-rose-400/40 focus:scale-105 active:scale-95 outline-none ring-2 ring-transparent focus:ring-rose-400/60 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
-          style={{ background: 'linear-gradient(135deg, #e35417, #fd0707, #8e0707)', boxShadow: '0 4px 24px 0 #ef444433' }}
+          onMouseMove={(e) => {
+            if (loading) return;
+            const r = e.currentTarget.getBoundingClientRect();
+            e.currentTarget.style.setProperty('--gx', `${e.clientX - r.left}px`);
+            e.currentTarget.style.setProperty('--gy', `${e.clientY - r.top}px`);
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.setProperty('--gx', '200%');
+            e.currentTarget.style.setProperty('--gy', '200%');
+          }}
+          onMouseEnter={(e) => { e.currentTarget.classList.remove('login-btn-idle'); }}
+          onBlur={(e) => { e.currentTarget.classList.add('login-btn-idle'); }}
+          className="login-btn-idle mt-1 py-3 rounded-2xl font-bold text-white text-base outline-none disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
+          style={{
+            background: 'radial-gradient(circle at var(--gx,50%) var(--gy,50%), rgba(255,180,180,0.30) 0%, transparent 55%), linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)',
+            border: '1px solid rgba(239,68,68,0.55)',
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 4px 28px rgba(239,68,68,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
+            transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+          }}
+          onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)'; }}
+          onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; setTimeout(() => { if (e.currentTarget) e.currentTarget.style.transform = 'scale(1)'; }, 150); }}
         >
+          {/* shimmer top edge */}
+          <span className="absolute inset-x-8 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,200,200,0.70), transparent)' }} />
+          {/* corner orb */}
+          <span className="absolute -right-4 -bottom-4 w-16 h-16 rounded-full blur-2xl opacity-40 group-hover:opacity-65 transition-opacity duration-300" style={{ background: '#ef4444' }} />
+
           {loading ? (
-            <span className="inline-flex items-center gap-2 justify-center">
+            <span className="inline-flex items-center gap-2 justify-center relative z-10">
               <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" />
                 <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8H4z" />
@@ -249,23 +292,14 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
               Signing in…
             </span>
           ) : (
-            <span className="inline-flex items-center gap-2 justify-center">
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-                <path d="M5 12h14M12 5l7 7-7 7" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <span className="inline-flex items-center gap-2 justify-center relative z-10">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+                <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="#fca5a5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              Login as {roleInfo?.label}
+              <span className="login-btn-shimmer-text font-extrabold tracking-wide">Login</span>
             </span>
           )}
         </button>
-
-        {/* Demo hint */}
-        <div
-          className="rounded-xl px-4 py-3 text-sm text-white/40 text-center"
-          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
-        >
-          <span className="font-semibold text-white/50">Demo — </span>
-          ambulance: <span className="text-white/60">ambulance@demo.com</span> / <span className="text-white/60">demo123</span>
-        </div>
 
         {/* Footer links */}
         <div className="flex justify-between items-center text-sm text-rose-200/70">
@@ -275,7 +309,7 @@ const Login = ({ onLoginSuccess, setCurrentPage }) => {
             className="hover:underline hover:text-rose-200 transition-colors"
             onClick={(e) => { e.preventDefault(); setCurrentPage && setCurrentPage('signup'); }}
           >
-            Don't have an account? <span className="font-semibold">Sign up</span>
+            Don't have an account?<br /><span className="font-semibold">Sign up</span>
           </a>
         </div>
       </form>

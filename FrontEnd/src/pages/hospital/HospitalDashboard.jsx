@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Icon, HospitalIcon, AmbulanceIcon, CheckCircleIcon } from '../../components/Icons';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 const HOSPITALS = [
@@ -6,14 +7,14 @@ const HOSPITALS = [
   'Amrita Institute', 'Lisie Hospital', 'Medical Trust Hospital',
 ];
 const ORGANS = [
-  { name: 'Heart',     icon: '💓', viability: '4h'  },
-  { name: 'Kidney',    icon: '🥔', viability: '36h' },
-  { name: 'Liver',     icon: '🩸', viability: '24h' },
-  { name: 'Lungs',     icon: '💨', viability: '6h'  },
-  { name: 'Pancreas',  icon: '🧬', viability: '12h' },
-  { name: 'Intestine', icon: '🧫', viability: '8h'  },
-  { name: 'Cornea',    icon: '👁️', viability: '14d' },
-  { name: 'Tissue',    icon: '🧪', viability: '5y'  },
+  { name: 'Heart',     icon: 'heart',     viability: '4h'  },
+  { name: 'Kidney',    icon: 'kidney',    viability: '36h' },
+  { name: 'Liver',     icon: 'liver',     viability: '24h' },
+  { name: 'Lungs',     icon: 'lungs',     viability: '6h'  },
+  { name: 'Pancreas',  icon: 'pancreas',  viability: '12h' },
+  { name: 'Intestine', icon: 'testtube',  viability: '8h'  },
+  { name: 'Cornea',    icon: 'eye',       viability: '14d' },
+  { name: 'Tissue',    icon: 'testtube',  viability: '5y'  },
 ];
 const AMBULANCES = [
   { id: 'AMB-001', driver: 'Rajan Kumar',  vehicle: 'KL-07-AB-1234', available: true  },
@@ -21,9 +22,9 @@ const AMBULANCES = [
   { id: 'AMB-003', driver: 'Anil Thomas',  vehicle: 'KL-07-EF-9012', available: false },
 ];
 const URGENCY = [
-  { value: 'STABLE',        label: 'Stable',       icon: '🟢', color: '#10b981', glow: 'rgba(16,185,129,0.4)'  },
-  { value: 'CRITICAL',      label: 'Critical',     icon: '🟡', color: '#f59e0b', glow: 'rgba(245,158,11,0.4)'  },
-  { value: 'VERY_CRITICAL', label: 'Very Critical',icon: '🔴', color: '#ef4444', glow: 'rgba(239,68,68,0.4)'   },
+  { value: 'STABLE',        label: 'Stable',       icon: 'dot', dotColor: '#10b981', color: '#10b981', glow: 'rgba(16,185,129,0.4)'  },
+  { value: 'CRITICAL',      label: 'Critical',     icon: 'dot', dotColor: '#f59e0b', color: '#f59e0b', glow: 'rgba(245,158,11,0.4)'  },
+  { value: 'VERY_CRITICAL', label: 'Very Critical',icon: 'dot', dotColor: '#ef4444', color: '#ef4444', glow: 'rgba(239,68,68,0.4)'   },
 ];
 const EMPTY_FORM = {
   sourceHospital: '', destinationHospital: '', organType: '',
@@ -31,21 +32,21 @@ const EMPTY_FORM = {
   doctorName: '', doctorPhone: '', doctorSpecialization: '', notes: '',
 };
 const MOCK_CORRIDORS = [
-  { id: 'CR-3842', organ: '🫀', organName: 'Heart',  from: 'AIMS',    to: 'Aster Medcity',   urgency: 'VERY_CRITICAL', status: 'IN_PROGRESS', eta: '12 min' },
-  { id: 'CR-3839', organ: '🫘', organName: 'Kidney', from: 'Lisie',    to: 'City General',    urgency: 'CRITICAL',      status: 'APPROVED',    eta: '28 min' },
-  { id: 'CR-3835', organ: '🫁', organName: 'Lungs',  from: 'Amrita',  to: 'Medical Trust',   urgency: 'CRITICAL',      status: 'COMPLETED',   eta: '—'      },
+  { id: 'CR-3842', organ: 'heart',  organName: 'Heart',  from: 'AIMS',   to: 'Aster Medcity',  urgency: 'VERY_CRITICAL', status: 'IN_PROGRESS', eta: '12 min' },
+  { id: 'CR-3839', organ: 'kidney', organName: 'Kidney', from: 'Lisie',  to: 'City General',   urgency: 'CRITICAL',      status: 'APPROVED',    eta: '28 min' },
+  { id: 'CR-3835', organ: 'lungs',  organName: 'Lungs',  from: 'Amrita', to: 'Medical Trust',  urgency: 'CRITICAL',      status: 'COMPLETED',   eta: '—'      },
 ];
 const MOCK_HISTORY = [
-  { id: 'CR-3842', organ: '🫀', organName: 'Heart',     from: 'AIMS Medical Centre',     to: 'Aster Medcity',        urgency: 'VERY_CRITICAL', status: 'IN_PROGRESS', date: 'Feb 23, 2026', time: '11:48 AM', duration: '—',    doctor: 'Dr. Priya Nair',     notes: 'Donor match confirmed. Priority route activated.' },
-  { id: 'CR-3839', organ: '🫘', organName: 'Kidney',    from: 'Lisie Hospital',           to: 'City General Hospital', urgency: 'CRITICAL',      status: 'APPROVED',    date: 'Feb 23, 2026', time: '10:30 AM', duration: '—',    doctor: 'Dr. Anand Raj',      notes: 'Patient on dialysis. Scheduled pre-op at destination.' },
-  { id: 'CR-3835', organ: '🫁', organName: 'Lungs',     from: 'Amrita Institute',         to: 'Medical Trust Hospital',urgency: 'CRITICAL',      status: 'COMPLETED',   date: 'Feb 23, 2026', time: '09:00 AM', duration: '38 min', doctor: 'Dr. Sujith Kumar',   notes: 'Successful bilateral lung transplant prep completed.' },
-  { id: 'CR-3821', organ: '🩸', organName: 'Liver',     from: 'City General Hospital',    to: 'AIMS Medical Centre',  urgency: 'VERY_CRITICAL', status: 'COMPLETED',   date: 'Feb 22, 2026', time: '04:15 PM', duration: '22 min', doctor: 'Dr. Meera Pillai',   notes: 'Acute liver failure case. Green corridor pre-cleared by traffic control.' },
-  { id: 'CR-3810', organ: '🧬', organName: 'Pancreas',  from: 'Aster Medcity',            to: 'Amrita Institute',     urgency: 'CRITICAL',      status: 'COMPLETED',   date: 'Feb 22, 2026', time: '10:00 AM', duration: '45 min', doctor: 'Dr. George Thomas',  notes: '' },
-  { id: 'CR-3798', organ: '🫀', organName: 'Heart',     from: 'Medical Trust Hospital',   to: 'Lisie Hospital',       urgency: 'VERY_CRITICAL', status: 'COMPLETED',   date: 'Feb 21, 2026', time: '07:20 AM', duration: '18 min', doctor: 'Dr. Priya Nair',     notes: 'Pediatric donor. All signals cleared en route.' },
-  { id: 'CR-3785', organ: '👁️', organName: 'Cornea',    from: 'AIMS Medical Centre',     to: 'City General Hospital', urgency: 'STABLE',        status: 'COMPLETED',   date: 'Feb 20, 2026', time: '02:00 PM', duration: '52 min', doctor: 'Dr. Latha Menon',    notes: 'Bilateral cornea. Stable transfer, no complications.' },
-  { id: 'CR-3770', organ: '🫘', organName: 'Kidney',    from: 'Lisie Hospital',           to: 'Aster Medcity',        urgency: 'CRITICAL',      status: 'REJECTED',    date: 'Feb 19, 2026', time: '11:10 AM', duration: '—',    doctor: 'Dr. Anand Raj',      notes: 'Rejected — compatibility mismatch detected post-approval.' },
-  { id: 'CR-3759', organ: '🧫', organName: 'Intestine', from: 'Amrita Institute',         to: 'Medical Trust Hospital',urgency: 'CRITICAL',      status: 'COMPLETED',   date: 'Feb 18, 2026', time: '08:45 AM', duration: '31 min', doctor: 'Dr. Sujith Kumar',   notes: '' },
-  { id: 'CR-3744', organ: '🧪', organName: 'Tissue',    from: 'City General Hospital',    to: 'Lisie Hospital',       urgency: 'STABLE',        status: 'COMPLETED',   date: 'Feb 17, 2026', time: '03:30 PM', duration: '1h 04m', doctor: 'Dr. George Thomas',  notes: 'Bone tissue bank transfer. Cold chain maintained.' },
+  { id: 'CR-3842', organ: 'heart',    organName: 'Heart',     from: 'AIMS Medical Centre',    to: 'Aster Medcity',         urgency: 'VERY_CRITICAL', status: 'IN_PROGRESS', date: 'Feb 23, 2026', time: '11:48 AM', duration: '—',    doctor: 'Dr. Priya Nair',    notes: 'Donor match confirmed. Priority route activated.' },
+  { id: 'CR-3839', organ: 'kidney',   organName: 'Kidney',    from: 'Lisie Hospital',          to: 'City General Hospital', urgency: 'CRITICAL',      status: 'APPROVED',    date: 'Feb 23, 2026', time: '10:30 AM', duration: '—',    doctor: 'Dr. Anand Raj',     notes: 'Patient on dialysis. Scheduled pre-op at destination.' },
+  { id: 'CR-3835', organ: 'lungs',    organName: 'Lungs',     from: 'Amrita Institute',        to: 'Medical Trust Hospital',urgency: 'CRITICAL',      status: 'COMPLETED',   date: 'Feb 23, 2026', time: '09:00 AM', duration: '38 min', doctor: 'Dr. Sujith Kumar',  notes: 'Successful bilateral lung transplant prep completed.' },
+  { id: 'CR-3821', organ: 'liver',    organName: 'Liver',     from: 'City General Hospital',   to: 'AIMS Medical Centre',   urgency: 'VERY_CRITICAL', status: 'COMPLETED',   date: 'Feb 22, 2026', time: '04:15 PM', duration: '22 min', doctor: 'Dr. Meera Pillai',  notes: 'Acute liver failure case. Green corridor pre-cleared by traffic control.' },
+  { id: 'CR-3810', organ: 'pancreas', organName: 'Pancreas',  from: 'Aster Medcity',           to: 'Amrita Institute',      urgency: 'CRITICAL',      status: 'COMPLETED',   date: 'Feb 22, 2026', time: '10:00 AM', duration: '45 min', doctor: 'Dr. George Thomas', notes: '' },
+  { id: 'CR-3798', organ: 'heart',    organName: 'Heart',     from: 'Medical Trust Hospital',  to: 'Lisie Hospital',        urgency: 'VERY_CRITICAL', status: 'COMPLETED',   date: 'Feb 21, 2026', time: '07:20 AM', duration: '18 min', doctor: 'Dr. Priya Nair',    notes: 'Pediatric donor. All signals cleared en route.' },
+  { id: 'CR-3785', organ: 'eye',      organName: 'Cornea',    from: 'AIMS Medical Centre',    to: 'City General Hospital', urgency: 'STABLE',        status: 'COMPLETED',   date: 'Feb 20, 2026', time: '02:00 PM', duration: '52 min', doctor: 'Dr. Latha Menon',   notes: 'Bilateral cornea. Stable transfer, no complications.' },
+  { id: 'CR-3770', organ: 'kidney',   organName: 'Kidney',    from: 'Lisie Hospital',          to: 'Aster Medcity',         urgency: 'CRITICAL',      status: 'REJECTED',    date: 'Feb 19, 2026', time: '11:10 AM', duration: '—',    doctor: 'Dr. Anand Raj',     notes: 'Rejected — compatibility mismatch detected post-approval.' },
+  { id: 'CR-3759', organ: 'testtube', organName: 'Intestine', from: 'Amrita Institute',        to: 'Medical Trust Hospital',urgency: 'CRITICAL',      status: 'COMPLETED',   date: 'Feb 18, 2026', time: '08:45 AM', duration: '31 min', doctor: 'Dr. Sujith Kumar',  notes: '' },
+  { id: 'CR-3744', organ: 'testtube', organName: 'Tissue',    from: 'City General Hospital',   to: 'Lisie Hospital',        urgency: 'STABLE',        status: 'COMPLETED',   date: 'Feb 17, 2026', time: '03:30 PM', duration: '1h 04m', doctor: 'Dr. George Thomas', notes: 'Bone tissue bank transfer. Cold chain maintained.' },
 ];
 
 // ── Mock API ───────────────────────────────────────────────────────────────
@@ -186,7 +187,7 @@ const StatCard = ({ label, value, suffix, icon, sub, color = '#10b981', trend })
     <div className="relative z-10">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-bold uppercase tracking-[0.15em]" style={{ color: `${color}bb` }}>{label}</span>
-        <span className="text-xl">{icon}</span>
+        {icon && <Icon name={icon} size={20} color={`${color}cc`} />}
       </div>
       <div className="text-4xl font-black text-white leading-none mb-1">
         <AnimatedNumber target={typeof value === 'number' ? value : parseInt(value) || 0} suffix={suffix || ''} />
@@ -368,7 +369,7 @@ const MiniMapPreview = ({ setCurrentPage, corridors }) => {
               {/* Ambulance dot (animated) */}
               <circle cx="160" cy="75" r="7" fill={URGENCY_COLOR[active[0]?.urgency] || '#f59e0b'}
                 style={{ animation:'pingOrb 1.4s ease-in-out infinite' }} />
-              <text x="160" y="79" textAnchor="middle" fontSize="9">🚑</text>
+              <text x="160" y="79" textAnchor="middle" fontSize="9" fill="white" fontWeight="bold">+</text>
             </svg>
           )}
 
@@ -505,7 +506,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
       <div className="flex items-center gap-3">
         <div className="relative">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black shadow-lg"
-            style={{ background: 'linear-gradient(135deg,#10b981,#059669)', boxShadow: '0 0 20px rgba(16,185,129,0.4)' }}>🏥</div>
+            style={{ background: 'linear-gradient(135deg,#10b981,#059669)', boxShadow: '0 0 20px rgba(16,185,129,0.4)' }}><HospitalIcon size={20} color="#fff" /></div>
         </div>
         <div>
           <div className="text-base font-black text-white tracking-tight leading-none">GreenNote</div>
@@ -516,7 +517,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
       {/* Nav tabs */}
       {view === 'dashboard' && (
         <div className="hidden md:flex items-center gap-1 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
-          {[['corridors','🛣️ Corridors'],['analytics','📊 Analytics']].map(([id, lbl]) => (
+          {[['corridors','Corridors'],['analytics','Analytics']].map(([id, lbl]) => (
             <button key={id} onClick={() => setActiveTab(id)}
               className="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200"
               style={activeTab === id
@@ -528,7 +529,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
           <button onClick={() => setView('history')}
             className="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200"
             style={{ color: 'rgba(255,255,255,0.4)', border: '1px solid transparent' }}>
-            🕒 View History
+            View History
           </button>
         </div>
       )}
@@ -580,7 +581,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M15.75 19.25L8.75 12.25L15.75 5.25" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
             <div>
-              <h1 className="text-2xl font-black text-white">🕒 Corridor History</h1>
+              <h1 className="text-2xl font-black text-white">Corridor History</h1>
               <p className="text-sm text-white/40 mt-0.5">{MOCK_HISTORY.length} total records · all transport corridors</p>
             </div>
           </div>
@@ -638,9 +639,9 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               minWidth="135px"
               options={[
                 { value: 'ALL',           label: 'All Urgency'     },
-                { value: 'STABLE',        label: '🟢 Stable'       },
-                { value: 'CRITICAL',      label: '🟡 Critical'     },
-                { value: 'VERY_CRITICAL', label: '🔴 Very Critical' },
+                { value: 'STABLE',        label: 'Stable'        },
+                { value: 'CRITICAL',      label: 'Critical'      },
+                { value: 'VERY_CRITICAL', label: 'Very Critical' },
               ]}
             />
 
@@ -777,7 +778,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M15.75 19.25L8.75 12.25L15.75 5.25" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
             <div>
-              <h1 className="text-2xl font-black text-white">🚨 Create Green Corridor</h1>
+              <h1 className="text-2xl font-black text-white">Create Green Corridor</h1>
               <p className="text-sm text-white/40 mt-0.5">Emergency organ transport request</p>
             </div>
           </div>
@@ -822,9 +823,9 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               {/* Icon */}
               <div className="relative mb-8">
                 <div className="w-28 h-28 rounded-full flex items-center justify-center text-5xl"
-                  style={{ background: 'rgba(16,185,129,0.12)', border: '2px solid rgba(16,185,129,0.4)', boxShadow: '0 0 60px rgba(16,185,129,0.35)' }}>✅</div>
+                  style={{ background: 'rgba(16,185,129,0.12)', border: '2px solid rgba(16,185,129,0.4)', boxShadow: '0 0 60px rgba(16,185,129,0.35)' }}><CheckCircleIcon size={64} color="#10b981" /></div>
                 <span className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center text-lg"
-                  style={{ background: 'linear-gradient(135deg,#10b981,#059669)', boxShadow: '0 0 16px rgba(16,185,129,0.6)' }}>🚑</span>
+                  style={{ background: 'linear-gradient(135deg,#10b981,#059669)', boxShadow: '0 0 16px rgba(16,185,129,0.6)' }}><AmbulanceIcon size={20} color="#fff" /></span>
               </div>
 
               {/* Heading */}
@@ -869,7 +870,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               {/* Step 1: Route */}
               {formStep === 1 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <SectionCard title="📍 Source Hospital">
+                  <SectionCard title="Source Hospital">
                     <label className={labelCls}>Your Hospital</label>
                     <select name="sourceHospital" value={form.sourceHospital} onChange={handleFormChange}
                       className={inputCls} style={inputStyle}>
@@ -877,7 +878,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
                       {HOSPITALS.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                   </SectionCard>
-                  <SectionCard title="🏁 Destination Hospital">
+                  <SectionCard title="Destination Hospital">
                     <label className={labelCls}>Transfer To <span className="text-red-400 normal-case">*</span></label>
                     <select name="destinationHospital" value={form.destinationHospital} onChange={handleFormChange}
                       className={inputCls} style={inputStyle} required>
@@ -907,7 +908,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               {/* Step 2: Organ + Urgency */}
               {formStep === 2 && (
                 <div className="flex flex-col gap-5">
-                  <SectionCard title="🫀 Select Organ Type">
+                  <SectionCard title="Select Organ Type">
                     <div className="grid grid-cols-4 gap-3">
                       {ORGANS.map(o => (
                         <button key={o.name} type="button" onClick={() => { setForm(p => ({ ...p, organType: o.name })); setFormError(''); }}
@@ -915,7 +916,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
                           style={form.organType === o.name
                             ? { background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.5)', boxShadow: '0 0 20px rgba(16,185,129,0.2)' }
                             : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                          <span className="text-3xl">{o.icon}</span>
+                          <Icon name={o.icon} size={28} color={form.organType === o.name ? '#10b981' : 'rgba(255,255,255,0.4)'} />
                           <span className="text-sm font-bold text-white">{o.name}</span>
                           <span className="text-xs" style={{ color: form.organType === o.name ? '#10b981' : 'rgba(255,255,255,0.3)' }}>
                             {o.viability} viable
@@ -924,7 +925,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
                       ))}
                     </div>
                   </SectionCard>
-                  <SectionCard title="⚠️ Urgency Level">
+                  <SectionCard title="Urgency Level">
                     <div className="grid grid-cols-3 gap-3">
                       {URGENCY.map(u => (
                         <button key={u.value} type="button" onClick={() => setForm(p => ({ ...p, urgencyLevel: u.value }))}
@@ -932,7 +933,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
                           style={form.urgencyLevel === u.value
                             ? { background: `${u.color}20`, border: `2px solid ${u.color}60`, boxShadow: `0 0 20px ${u.glow}` }
                             : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                          <span className="text-3xl">{u.icon}</span>
+                          <span className="w-4 h-4 rounded-full flex-shrink-0" style={{ background: form.urgencyLevel === u.value ? u.dotColor : 'rgba(255,255,255,0.2)', boxShadow: form.urgencyLevel === u.value ? `0 0 8px ${u.dotColor}` : 'none' }} />
                           <span className="text-base font-bold" style={{ color: form.urgencyLevel === u.value ? u.color : 'rgba(255,255,255,0.5)' }}>{u.label}</span>
                         </button>
                       ))}
@@ -944,7 +945,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               {/* Step 3: Team */}
               {formStep === 3 && (
                 <div className="grid grid-cols-1 gap-4">
-                  <SectionCard title="👨‍⚕️ Doctor In Charge">
+                  <SectionCard title="Doctor In Charge">
                     <div className="flex flex-col gap-3">
                       {[['doctorName',"Doctor's Name"],['doctorPhone','Contact Number'],['doctorSpecialization','Specialization']].map(([field, ph]) => (
                         <div key={field}>
@@ -970,15 +971,15 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
                   <h3 className="text-base font-bold uppercase tracking-widest text-white/40 mb-5">Review & Confirm</h3>
                   <div className="grid grid-cols-2 gap-4">
                     {[
-                      ['Source',      form.sourceHospital || 'Not specified',  '📍'],
-                      ['Destination', form.destinationHospital || '—',         '🏁'],
-                      ['Organ',       organObj ? `${organObj.icon} ${organObj.name}` : '—', ''],
-                      ['Urgency',     urgencyObj ? `${urgencyObj.icon} ${urgencyObj.label}` : '—', ''],
-                      ['Doctor',      form.doctorName || 'Not specified',       '👨‍⚕️'],
-                    ].map(([k, v, ic]) => (
+                      ['Source',      form.sourceHospital || 'Not specified'],
+                      ['Destination', form.destinationHospital || '—'],
+                      ['Organ',       organObj ? organObj.name : '—'],
+                      ['Urgency',     urgencyObj ? urgencyObj.label : '—'],
+                      ['Doctor',      form.doctorName || 'Not specified'],
+                    ].map(([k, v]) => (
                       <div key={k} className="flex flex-col gap-1 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)' }}>
                         <span className="text-xs font-bold uppercase tracking-widest text-white/30">{k}</span>
-                        <span className="text-base font-semibold text-white">{ic} {v}</span>
+                        <span className="text-base font-semibold text-white">{v}</span>
                       </div>
                     ))}
                   </div>
@@ -1056,7 +1057,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               <span className="text-xs font-bold tracking-[0.2em] text-emerald-500/70 uppercase">Hospital Dashboard</span>
             </div>
             <h2 className="text-4xl font-black text-white">
-              Welcome back, <span style={{ background: 'linear-gradient(135deg,#10b981,#34d399,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{user?.name || 'Admin'}</span>
+              Welcome, <span style={{ background: 'linear-gradient(135deg,#10b981,#34d399,#6ee7b7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{user?.hospitalName || user?.name || 'Hospital'}</span> Admin
             </h2>
             <p className="text-white/35 text-base mt-1">{user?.email} · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
           </div>
@@ -1072,10 +1073,10 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
 
         {/* ── Stats row ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Active Corridors" value={2}  icon="🛣️"  sub="Live right now"    color="#ef4444" trend="+1 today" />
-          <StatCard label="Pending Approval" value={5}  icon="⏳"  sub="Awaiting action"   color="#f59e0b" />
-          <StatCard label="Completed Today"  value={8}  icon="✅"  sub="Successful"        color="#10b981" trend="↑ 33%" />
-          <StatCard label="Ambulances Live"  value={12} icon="🚑"  sub="GPS connected"     color="#3b82f6" />
+          <StatCard label="Active Corridors" value={2}  icon="road"       sub="Live right now"    color="#ef4444" trend="+1 today" />
+          <StatCard label="Pending Approval" value={5}  icon="hourglass"  sub="Awaiting action"   color="#f59e0b" />
+          <StatCard label="Completed Today"  value={8}  icon="check"      sub="Successful"        color="#10b981" trend="↑ 33%" />
+          <StatCard label="Ambulances Live"  value={12} icon="ambulance"  sub="GPS connected"     color="#3b82f6" />
         </div>
 
         {/* ── Tab content ── */}
@@ -1108,9 +1109,9 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
                       onMouseEnter={() => setHoveredCorridor(c.id)}
                       onMouseLeave={() => setHoveredCorridor(null)}>
                       {/* Organ icon */}
-                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                         style={{ background: isActive ? `${uc.color}20` : 'rgba(255,255,255,0.05)', border: isActive ? `1px solid ${uc.color}40` : '1px solid transparent' }}>
-                        {c.organ}
+                        <Icon name={c.organ} size={20} color={isActive ? uc.color : 'rgba(255,255,255,0.4)'} />
                       </div>
                       {/* Route */}
                       <div className="flex-1 min-w-0">
@@ -1158,15 +1159,15 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               </div>
               <div className="divide-y" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
                 {[
-                  { time: '12:04 PM', icon: '✅', msg: 'CR-3835 completed — Lung transport successful',        color: '#10b981' },
-                  { time: '11:30 AM', icon: '🚨', msg: 'CR-3842 dispatched — Ambulance KL-07-AB-1234 en route', color: '#ef4444' },
-                  { time: '10:15 AM', icon: '📋', msg: 'CR-3839 approved by Control Room',                     color: '#3b82f6' },
-                  { time: '09:00 AM', icon: '🛣️', msg: 'New corridor request CR-3839 submitted',               color: '#f59e0b' },
+                  { time: '12:04 PM', icon: 'check',     msg: 'CR-3835 completed — Lung transport successful',        color: '#10b981' },
+                  { time: '11:30 AM', icon: 'siren',     msg: 'CR-3842 dispatched — Ambulance KL-07-AB-1234 en route', color: '#ef4444' },
+                  { time: '10:15 AM', icon: 'clipboard', msg: 'CR-3839 approved by Control Room',                     color: '#3b82f6' },
+                  { time: '09:00 AM', icon: 'road',      msg: 'New corridor request CR-3839 submitted',               color: '#f59e0b' },
                 ].map((a, i) => (
                   <div key={i} className="flex items-center gap-4 px-6 py-3.5 hover:bg-white/[0.02] transition-colors">
                     <span className="text-xs text-white/25 w-20 flex-shrink-0 font-mono">{a.time}</span>
-                    <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-lg text-sm"
-                      style={{ background: `${a.color}15` }}>{a.icon}</span>
+                    <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center rounded-lg"
+                      style={{ background: `${a.color}15` }}><Icon name={a.icon} size={14} color={a.color} /></span>
                     <span className="text-sm text-white/60">{a.msg}</span>
                   </div>
                 ))}
@@ -1182,7 +1183,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
               { label: 'Avg Duration', value: 18,  suffix: 'min',sub: 'Per corridor',     color: '#3b82f6' },
               { label: 'Success Rate', value: 97,  suffix: '%',  sub: 'Completed safely', color: '#8b5cf6' },
             ].map(s => (
-              <StatCard key={s.label} {...s} icon="📊" />
+              <StatCard key={s.label} {...s} icon="barchart" />
             ))}
             <div className="md:col-span-3 rounded-2xl p-6"
               style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
@@ -1198,7 +1199,7 @@ const HospitalDashboard = ({ user, onLogout, setCurrentPage }) => {
                           <circle cx="18" cy="18" r="15" fill="none" stroke="#10b981" strokeWidth="3"
                             strokeDasharray={`${(pct / 100) * 94} 94`} strokeLinecap="round" opacity="0.8"/>
                         </svg>
-                        <span className="text-xl relative z-10">{o.icon}</span>
+                        <Icon name={o.icon} size={16} color="#10b981" className="relative z-10" />
                       </div>
                       <span className="text-xs font-bold text-white/50">{o.name}</span>
                       <span className="text-sm font-black text-white">{pct}%</span>

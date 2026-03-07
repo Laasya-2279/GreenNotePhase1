@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Icon, CheckCircleIcon, CarIcon, HospitalIcon, MapIcon, LightbulbIcon, AmbulanceIcon, WarningIcon, PhoneIcon, UserIcon, BellIcon, ArrowRightIcon, RoadIcon } from '../../components/Icons';
 
 // ── Animated background (blue hue) ───────────────────────────────────────
 const PUBLIC_BG_CSS = `
@@ -159,7 +160,7 @@ const PublicMiniMapPreview = ({ setCurrentPage, corridors }) => {
               {/* Vehicle dot */}
               <circle cx="160" cy="75" r="7" fill={SEV_COLOR[active[0]?.severity] || '#3b82f6'}
                 style={{ animation:'pubPingOrb 1.4s ease-in-out infinite' }} />
-              <text x="160" y="79" textAnchor="middle" fontSize="9">🚗</text>
+              <text x="160" y="79" textAnchor="middle" fontSize="9" fill="white" fontWeight="bold">+</text>
             </svg>
           )}
 
@@ -204,7 +205,7 @@ const PublicMiniMapPreview = ({ setCurrentPage, corridors }) => {
                 <div className="w-1 self-stretch rounded-full flex-shrink-0" style={{ background: sc }} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-base">🛣️</span>
+                    <RoadIcon size={14} color="#60a5fa" />
                     <span className="text-sm font-bold text-white truncate">{c.from} → {c.to}</span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -291,12 +292,12 @@ const ACTIVE_CORRIDORS = [
 ];
 
 const GUIDELINES = [
-  { icon: '🚫', title: 'Do Not Enter Restricted Stretch', desc: 'Stay out of the marked corridor segment for the full duration. Unauthorised entry may obstruct emergency transit.' },
-  { icon: '↪️', title: 'Follow Diversion Signs', desc: 'Obey signboards and traffic personnel directing alternate routes. Do not rely solely on your GPS during an active corridor.' },
-  { icon: '🔕', title: 'No Honking Near Corridor', desc: 'Silence your horn in and around the corridor zone. Noise can distract emergency crew and delay response.' },
-  { icon: '🚑', title: 'Yield Immediately to Emergency Vehicles', desc: 'If an ambulance or escort vehicle approaches, pull to the left and come to a complete stop instantly.' },
-  { icon: '📱', title: 'Stay Alert for Clearance Notifications', desc: 'You will be notified here the moment the corridor is cleared. Refresh before re-entering the route.' },
-  { icon: '🤝', title: 'Inform Fellow Drivers', desc: 'If you spot confused drivers ahead, alert them about the diversion. Your awareness helps save lives.' },
+  { icon: 'warning',    title: 'Do Not Enter Restricted Stretch', desc: 'Stay out of the marked corridor segment for the full duration. Unauthorised entry may obstruct emergency transit.' },
+  { icon: 'arrowright', title: 'Follow Diversion Signs', desc: 'Obey signboards and traffic personnel directing alternate routes. Do not rely solely on your GPS during an active corridor.' },
+  { icon: 'bell',       title: 'No Honking Near Corridor', desc: 'Silence your horn in and around the corridor zone. Noise can distract emergency crew and delay response.' },
+  { icon: 'ambulance',  title: 'Yield Immediately to Emergency Vehicles', desc: 'If an ambulance or escort vehicle approaches, pull to the left and come to a complete stop instantly.' },
+  { icon: 'phone',      title: 'Stay Alert for Clearance Notifications', desc: 'You will be notified here the moment the corridor is cleared. Refresh before re-entering the route.' },
+  { icon: 'user',       title: 'Inform Fellow Drivers', desc: 'If you spot confused drivers ahead, alert them about the diversion. Your awareness helps save lives.' },
 ];
 
 const QUOTES = [
@@ -363,7 +364,7 @@ const CorridorAvoidCard = ({ corridor, index = 0 }) => {
                   boxShadow: isHigh ? `0 0 0 0 ${sc}80` : undefined,
                   animation: isHigh ? 'threatPulse 2s ease infinite' : corridor.severity === 'MODERATE' ? 'moderatePulse 2.5s ease infinite' : undefined,
                 }}>
-                🚧
+                <WarningIcon size={24} color={sc} />
               </div>
             </div>
 
@@ -396,7 +397,7 @@ const CorridorAvoidCard = ({ corridor, index = 0 }) => {
           <div className="rounded-xl px-3.5 py-3 flex flex-col gap-1"
             style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="text-sm">🏥</span>
+              <HospitalIcon size={13} color="#8b5cf6" />
               <span className="text-xs text-white/35 font-bold uppercase tracking-wider">Reason</span>
             </div>
             <span className="text-sm text-white/80 font-semibold leading-snug">{corridor.reason}</span>
@@ -405,7 +406,7 @@ const CorridorAvoidCard = ({ corridor, index = 0 }) => {
           <div className="rounded-xl px-3.5 py-3 flex flex-col gap-1"
             style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
             <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="text-sm">🗺️</span>
+              <MapIcon size={13} color="#60a5fa" />
               <span className="text-xs text-blue-300/50 font-bold uppercase tracking-wider">Alternate</span>
             </div>
             <span className="text-sm text-blue-200/90 font-semibold leading-snug">{corridor.alternate}</span>
@@ -464,9 +465,9 @@ const PublicDashboard = ({ user, onLogout, setCurrentPage }) => {
       <header className="relative z-10 flex items-center justify-between px-8 py-5 border-b"
         style={{ borderColor: 'rgba(255,255,255,0.07)', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)' }}>
         <div className="flex items-center gap-4">
-          <div className="rounded-full flex items-center justify-center text-2xl font-bold shadow-lg"
+          <div className="rounded-full flex items-center justify-center font-bold shadow-lg"
             style={{ width:52, height:52, background: 'linear-gradient(135deg, #3b82f6, #1e3a8a)', flexShrink:0 }}>
-            🚗
+            <CarIcon size={26} color="white" />
           </div>
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight text-white leading-none">GreenNote</h1>
@@ -517,7 +518,6 @@ const PublicDashboard = ({ user, onLogout, setCurrentPage }) => {
                 <span style={{ background: 'linear-gradient(135deg,#3b82f6,#93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   {user?.name || 'Driver'}
                 </span>{' '}
-                🚗
               </h2>
               <p className="text-white/40 mt-2 text-base relative z-10">
                 {user?.email} &nbsp;·&nbsp; Check active corridors before you head out
@@ -570,7 +570,7 @@ const PublicDashboard = ({ user, onLogout, setCurrentPage }) => {
               {activeCount === 0 ? (
                 <div className="rounded-2xl p-10 flex flex-col items-center gap-3 text-center"
                   style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
-                  <span className="text-5xl">✅</span>
+                  <span className="text-5xl">\n                  <CheckCircleIcon size={48} color="#10b981" />\n                </span>
                   <p className="text-emerald-400 font-bold text-lg">All Clear!</p>
                   <p className="text-white/40 text-sm">No active green corridors near your area at this time.</p>
                 </div>
@@ -607,9 +607,9 @@ const PublicDashboard = ({ user, onLogout, setCurrentPage }) => {
                   >
                     {/* Number + icon stack */}
                     <div className="flex-shrink-0 flex flex-col items-center gap-1">
-                      <div className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl"
+                      <div className="w-11 h-11 rounded-xl flex items-center justify-center"
                         style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)' }}>
-                        {g.icon}
+                        <Icon name={g.icon} size={22} color="#60a5fa" />
                       </div>
                       <span className="text-xs font-black tabular-nums" style={{ color: 'rgba(59,130,246,0.4)' }}>
                         {String(i + 1).padStart(2, '0')}
@@ -650,7 +650,7 @@ const PublicDashboard = ({ user, onLogout, setCurrentPage }) => {
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base flex-shrink-0"
                   style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.35)' }}>
-                  💡
+                  <LightbulbIcon size={18} color="#60a5fa" />
                 </div>
                 <div>
                   <span className="text-xs font-black uppercase tracking-widest" style={{ color: '#60a5fa' }}>Civic Thought</span>

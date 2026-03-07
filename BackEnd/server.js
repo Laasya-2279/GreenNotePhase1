@@ -8,7 +8,7 @@
  *   • Socket.IO real-time layer
  *   • Graceful shutdown handling
  */
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
 
 const http = require('http');
 const express = require('express');
