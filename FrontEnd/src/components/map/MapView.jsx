@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, ZoomControl } from 'r
 import "leaflet/dist/leaflet.css"
 import L from 'leaflet'
 import { useState, useEffect, useRef } from 'react';
+import { Icon } from '../Icons';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -10,21 +11,28 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const makeIcon = (emoji, size = 34) => L.divIcon({
-    html: `<div style="font-size:${size}px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">${emoji}</div>`,
-    className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2]
-});
+const makeIcon = (type, size = 34) => {
+    const isAmb = type === 'ambulance';
+    const color = isAmb ? '#ef4444' : '#3b82f6';
+    const symbol = isAmb ? '+' : '◆';
+    const html = `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2.5px solid rgba(255,255,255,0.9);box-shadow:0 2px 8px rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*0.45)}px;color:white;font-weight:900;">${symbol}</div>`;
+    return L.divIcon({ html, className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
+};
+const hospitalIcon = (size = 36) => {
+    const html = `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#10b981;border:2.5px solid rgba(255,255,255,0.92);box-shadow:0 0 12px rgba(16,185,129,0.70),0 2px 8px rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*0.52)}px;">🏥</div>`;
+    return L.divIcon({ html, className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
+};
 const signalIcon = (state) => L.divIcon({
-    html: `<div style="font-size:28px;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));">${state === 'GREEN' ? '🟢' : '🔴'}</div>`,
-    className: '', iconSize: [28, 28], iconAnchor: [14, 14]
+    html: `<div style="width:22px;height:22px;border-radius:50%;background:${state==='GREEN'?'#10b981':'#ef4444'};border:2.5px solid rgba(255,255,255,0.88);box-shadow:0 0 10px ${state==='GREEN'?'rgba(16,185,129,0.65)':'rgba(239,68,68,0.65)'},0 2px 5px rgba(0,0,0,0.4)"></div>`,
+    className: '', iconSize: [22, 22], iconAnchor: [11, 11]
 });
 
 const ROLE_CONFIGS = {
-    ambulance:    { label: 'Ambulance Driver',  icon: '🚑', accent: '#ef4444' },
-    hospital:     { label: 'Hospital',          icon: '🏥', accent: '#10b981' },
-    traffic:      { label: 'Traffic Control',   icon: '🚦', accent: '#f59e0b' },
-    public:       { label: 'Public / Driver',   icon: '🚗', accent: '#3b82f6' },
-    control_room: { label: 'Control Room',      icon: '🖥️', accent: '#8b5cf6' },
+    ambulance:    { label: 'Ambulance Driver',  icon: 'AMB', accent: '#ef4444' },
+    hospital:     { label: 'Hospital',          icon: 'HOS', accent: '#10b981' },
+    traffic:      { label: 'Traffic Control',   icon: 'TRF', accent: '#f59e0b' },
+    public:       { label: 'Public / Driver',   icon: 'PUB', accent: '#3b82f6' },
+    control_room: { label: 'Control Room',      icon: 'CTL', accent: '#8b5cf6' },
 };
 
 const STORAGE_KEY = 'greennote_corridor_v1';
@@ -62,7 +70,7 @@ const StatCard = ({ label, value, sub, accent, icon }) => (
     <div className="rounded-xl p-3.5 flex flex-col gap-1" style={{ background:'rgba(255,255,255,0.05)', border:`1px solid ${accent}30` }}>
         <div className="flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wider" style={{ color:`${accent}cc` }}>{label}</span>
-            {icon && <span className="text-base">{icon}</span>}
+            {icon && <span style={{ display:'flex' }}><Icon name={icon} size={18} color={accent} /></span>}
         </div>
         <div className="text-white font-bold text-lg leading-tight">{value}</div>
         {sub && <div className="text-white/40 text-xs">{sub}</div>}
@@ -83,8 +91,8 @@ const AmbulanceDashboard = ({ criticality, setCriticality, eta, arrived, hospita
                 <div className="absolute top-0 right-0 w-24 h-24 rounded-full pointer-events-none"
                     style={{ background:'radial-gradient(circle,rgba(239,68,68,0.18),transparent 70%)', transform:'translate(30%,-30%)' }} />
                 <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-                        style={{ background:'linear-gradient(135deg,#ef4444,#7f1d1d)', boxShadow:'0 4px 16px rgba(239,68,68,0.4)' }}>🚑</div>
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-sm font-black flex-shrink-0"
+                        style={{ background:'linear-gradient(135deg,#ef4444,#7f1d1d)', boxShadow:'0 4px 16px rgba(239,68,68,0.4)', color:'white' }}>AMB</div>
                     <div className="flex-1 min-w-0">
                         <p className="text-white font-extrabold text-sm leading-tight truncate">{user?.name || 'Ambulance Driver'}</p>
                         <p className="text-white/45 text-xs truncate">{user?.email || 'driver@greennote.in'}</p>
@@ -98,7 +106,7 @@ const AmbulanceDashboard = ({ criticality, setCriticality, eta, arrived, hospita
                     {user?.vehicleNumber && (
                         <span className="text-xs px-2.5 py-1 rounded-full font-mono text-white/60"
                             style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.12)' }}>
-                            🚗 {user.vehicleNumber}
+                            {user.vehicleNumber}
                         </span>
                     )}
                 </div>
@@ -108,7 +116,7 @@ const AmbulanceDashboard = ({ criticality, setCriticality, eta, arrived, hospita
             {arrived && (
                 <div className="rounded-xl p-3 text-center animate-pulse"
                     style={{ background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.3)' }}>
-                    <p className="text-emerald-400 font-bold text-sm">✅ Destination Reached</p>
+                    <p className="text-emerald-400 font-bold text-sm">Destination Reached</p>
                     <p className="text-emerald-400/60 text-xs mt-0.5">Handover patient to receiving team</p>
                 </div>
             )}
@@ -119,7 +127,7 @@ const AmbulanceDashboard = ({ criticality, setCriticality, eta, arrived, hospita
                 <div className="absolute inset-0 pointer-events-none"
                     style={{ background:`radial-gradient(circle at 50% 0%,${critColor}22,transparent 65%)` }} />
                 <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color:`${critColor}99` }}>ETA to Destination</p>
-                <div className="text-4xl font-black text-white leading-none mb-1">{arrived?'✅':eta}</div>
+                <div className="text-4xl font-black text-white leading-none mb-1">{arrived ? 'ARRIVED' : eta}</div>
                 {!arrived && <div className="flex items-center justify-center gap-1.5 mt-1">
                     <div className="w-1.5 h-1.5 rounded-full animate-ping" style={{ background: critColor }} />
                     <span className="text-xs font-medium" style={{ color:`${critColor}99` }}>EN ROUTE</span>
@@ -129,7 +137,7 @@ const AmbulanceDashboard = ({ criticality, setCriticality, eta, arrived, hospita
             {/* ── Patient criticality ── */}
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
                 style={{ background:`${critColor}12`, border:`1px solid ${critColor}35` }}>
-                <span className="text-2xl">{criticality==='VERY CRITICAL'?'🔴':criticality==='CRITICAL'?'🟠':'🟢'}</span>
+                <span className="text-2xl"><span className="w-5 h-5 rounded-full inline-block" style={{ background: critColor, boxShadow:`0 0 8px ${critColor}` }} /></span>
                 <div>
                     <p className="text-xs text-white/40 uppercase tracking-wider font-bold">Patient Criticality</p>
                     <p className="text-base font-black" style={{ color: critColor }}>{criticality}</p>
@@ -139,10 +147,10 @@ const AmbulanceDashboard = ({ criticality, setCriticality, eta, arrived, hospita
 
             {/* ── Today's stats ── */}
             <div className="grid grid-cols-2 gap-2">
-                <StatCard label="Trips Today" value="3" icon="🗺️" sub="Last: 2h ago" accent={accent} />
-                <StatCard label="Avg Response" value="4m 12s" icon="⚡" sub="This week" accent={accent} />
-                <StatCard label="Distance" value="47 km" icon="📍" sub="Driven today" accent={accent} />
-                <StatCard label="Corridor Score" value="98%" icon="🏆" sub="Clearance rate" accent={accent} />
+                <StatCard label="Trips Today" value="3" icon="map" sub="Last: 2h ago" accent={accent} />
+                <StatCard label="Avg Response" value="4m 12s" icon="bolt" sub="This week" accent={accent} />
+                <StatCard label="Distance" value="47 km" icon="mappin" sub="Driven today" accent={accent} />
+                <StatCard label="Corridor Score" value="98%" icon="trophy" sub="Clearance rate" accent={accent} />
             </div>
 
             {/* ── Duty status ── */}
@@ -179,7 +187,7 @@ const AmbulanceDashboard = ({ criticality, setCriticality, eta, arrived, hospita
                     <p className="text-xs text-white/40 uppercase tracking-wider mb-2 font-medium">Hospital ETAs</p>
                     {hospitalETAs.map(h => (
                         <div key={h.id} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
-                            <span className="text-sm text-white/70">🏥 {h.name}</span>
+                            <span className="text-sm text-white/70">{h.name}</span>
                             <span className="text-sm font-semibold" style={{ color: h.selected?'#10b981':'white' }}>{h.eta}</span>
                         </div>
                     ))}
@@ -189,11 +197,11 @@ const AmbulanceDashboard = ({ criticality, setCriticality, eta, arrived, hospita
             {/* ── Actions ── */}
             <div className="flex flex-col gap-2 border-t border-white/10 pt-3">
                 <button onClick={onAutoSelect} className="w-full py-2.5 rounded-xl text-sm font-bold text-white"
-                    style={{ background:'linear-gradient(135deg,#1d4ed8,#2563eb)' }}>🏥 Auto-Select Nearest Hospital</button>
+                    style={{ background:'linear-gradient(135deg,#1d4ed8,#2563eb)' }}>Auto-Select Nearest Hospital</button>
                 <button onClick={onEnableAudio} className="w-full py-2 rounded-xl text-xs font-semibold text-white/70"
-                    style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)' }}>🔔 Enable Driver Alerts</button>
+                    style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.1)' }}>Enable Driver Alerts</button>
                 <button onClick={onReset} className="w-full py-2 rounded-xl text-xs font-semibold text-red-400"
-                    style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)' }}>↺ Reset Learning Model</button>
+                    style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)' }}>Reset Learning Model</button>
             </div>
 
             {/* ── Recent activity ── */}
@@ -228,10 +236,10 @@ const HospitalDashboard = ({ eta, criticality, arrived, signals }) => {
     const accent = '#10b981';
     const greenCount = signals.filter(s => s.state==='GREEN').length;
     const critColor = criticality==='VERY CRITICAL' ? '#ef4444' : criticality==='CRITICAL' ? '#f59e0b' : '#10b981';
-    const critIcon  = criticality==='VERY CRITICAL' ? '🔴' : criticality==='CRITICAL' ? '🟠' : '🟢';
+    const critIcon  = criticality==='VERY CRITICAL' ? '#ef4444' : criticality==='CRITICAL' ? '#f97316' : '#10b981';
 
     // Mock organ info (in real app this comes from the active corridor)
-    const organInfo = { icon: '🫀', name: 'Heart', viability: '4h', from: 'AIMS Medical', to: 'City General' };
+    const organInfo = { icon: 'heart', name: 'Heart', viability: '4h', from: 'AIMS Medical', to: 'City General' };
 
     return (
         <div className="flex flex-col gap-4">
@@ -239,7 +247,7 @@ const HospitalDashboard = ({ eta, criticality, arrived, signals }) => {
             {/* Arrived banner */}
             {arrived && (
                 <div className="rounded-xl p-3 text-center animate-pulse" style={{ background:'rgba(16,185,129,0.15)', border:'1px solid rgba(16,185,129,0.3)' }}>
-                    <p className="text-emerald-400 font-bold text-sm">🏥 Ambulance Arrived</p>
+                    <p className="text-emerald-400 font-bold text-sm">Ambulance Arrived</p>
                     <p className="text-emerald-400/70 text-xs mt-0.5">Prepare receiving bay now</p>
                 </div>
             )}
@@ -249,14 +257,14 @@ const HospitalDashboard = ({ eta, criticality, arrived, signals }) => {
                 style={{ background:`linear-gradient(135deg, ${critColor}18, ${critColor}08)`, border:`1px solid ${critColor}35` }}>
                 <div className="absolute inset-0 pointer-events-none" style={{ background:`radial-gradient(circle at 50% 0%, ${critColor}22, transparent 60%)` }} />
                 <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color:`${critColor}99` }}>Incoming ETA</p>
-                <div className="text-5xl font-black text-white leading-none mb-1">{arrived ? '✅' : eta}</div>
+                <div className="text-5xl font-black text-white leading-none mb-1">{arrived ? 'ARRIVED' : eta}</div>
                 {!arrived && <p className="text-xs font-medium" style={{ color:`${critColor}aa` }}>until ambulance arrives</p>}
             </div>
 
             {/* Criticality badge */}
             <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
                 style={{ background:`${critColor}12`, border:`1px solid ${critColor}35` }}>
-                <span className="text-2xl">{critIcon}</span>
+                <span className="text-2xl"><span className="w-5 h-5 rounded-full inline-block" style={{ background: critIcon, boxShadow:`0 0 8px ${critIcon}` }} /></span>
                 <div>
                     <p className="text-xs text-white/40 uppercase tracking-wider font-bold">Patient Criticality</p>
                     <p className="text-base font-black" style={{ color: critColor }}>{criticality}</p>
@@ -270,9 +278,9 @@ const HospitalDashboard = ({ eta, criticality, arrived, signals }) => {
                     <span className="text-xs font-bold uppercase tracking-wider text-white/40">Organ in Transit</span>
                 </div>
                 <div className="px-4 py-3 flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl flex-shrink-0"
+                    <div className="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
                         style={{ background:'rgba(16,185,129,0.12)', border:'1px solid rgba(16,185,129,0.3)' }}>
-                        {organInfo.icon}
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 3 14 3 8.5a9 9 0 0118 0C21 14 12 21 12 21z" stroke="#10b981" strokeWidth="1.5" fill="rgba(16,185,129,0.2)"/><path d="M12 11v-3M10.5 9.5h3" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round"/></svg>
                     </div>
                     <div className="flex-1">
                         <p className="text-lg font-black text-white leading-tight">{organInfo.name}</p>
@@ -294,7 +302,7 @@ const HospitalDashboard = ({ eta, criticality, arrived, signals }) => {
             {/* Hospital prep status */}
             <div className="rounded-xl px-4 py-3 flex items-center gap-3"
                 style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.09)' }}>
-                <span className="text-xl">{arrived ? '✅' : '🏥'}</span>
+                <span className="text-xl"><span className="w-4 h-4 rounded-full inline-block flex-shrink-0" style={{ background: arrived?'#10b981':'#3b82f6', boxShadow:`0 0 6px ${arrived?'rgba(16,185,129,0.6)':'rgba(59,130,246,0.6)'}` }} /></span>
                 <div>
                     <p className="text-xs text-white/40 uppercase tracking-wider font-bold">Preparation Status</p>
                     <p className="text-sm font-bold text-white">{arrived ? 'RECEIVING TEAM READY' : 'STANDBY — Awaiting Ambulance'}</p>
@@ -328,9 +336,9 @@ const TrafficDashboard = ({ signals, criticality, eta }) => {
     const greenCount = signals.filter(s => s.state==='GREEN').length;
     return (
         <div className="flex flex-col gap-3">
-            <StatCard label="Active Corridor" value={`${greenCount} signals GREEN`} icon="🟢" accent={accent} />
-            <StatCard label="Ambulance ETA" value={eta} sub="Time to destination" icon="⏱️" accent={accent} />
-            <StatCard label="Alert Level" value={criticality} icon={criticality==='VERY CRITICAL'?'🔴':criticality==='CRITICAL'?'🟠':'🟡'} accent={accent} />
+                <StatCard label="Active Corridor" value={`${greenCount} signals GREEN`} icon="signal" accent={accent} />
+                <StatCard label="Ambulance ETA" value={eta} sub="Time to destination" icon="clock" accent={accent} />
+                <StatCard label="Alert Level" value={criticality} icon="warning" accent={accent} />
             <div className="border-t border-white/10 pt-3">
                 <p className="text-xs text-white/40 uppercase tracking-wider mb-2 font-medium">Signal Status</p>
                 {signals.map(s => (
@@ -341,7 +349,7 @@ const TrafficDashboard = ({ signals, criticality, eta }) => {
                         </div>
                         <div className="flex flex-col items-end gap-1">
                             <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${s.state==='GREEN'?'bg-emerald-500/20 text-emerald-300':'bg-red-500/20 text-red-300'}`}>{s.state}</span>
-                            {s.state==='GREEN' && <span className="text-xs text-emerald-400/60">Cleared 🚑</span>}
+                            {s.state==='GREEN' && <span className="text-xs text-emerald-400/60">Cleared</span>}
                         </div>
                     </div>
                 ))}
@@ -360,7 +368,7 @@ const PublicDashboard = ({ signals, criticality, cars }) => {
                 <div className="flex items-center gap-2.5 mb-2">
                     <span className="w-3 h-3 rounded-full flex-shrink-0 animate-pulse" style={{ background: activeCorridor?'#f87171':'#34d399' }} />
                     <p className="text-base font-black uppercase tracking-wider" style={{ color: activeCorridor?'#f87171':'#34d399' }}>
-                        {activeCorridor?'⚠️ EMERGENCY CORRIDOR ACTIVE':'✅ No Active Corridor'}
+                        {activeCorridor ? 'EMERGENCY CORRIDOR ACTIVE' : 'No Active Corridor'}
                     </p>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">{activeCorridor?'Pull over immediately. Emergency vehicle is approaching. Do NOT re-enter the route until cleared.':'Normal traffic flow. No action required at this time.'}</p>
@@ -370,14 +378,14 @@ const PublicDashboard = ({ signals, criticality, cars }) => {
             <div className="rounded-2xl p-5 flex flex-col gap-2" style={{ background:'rgba(255,255,255,0.05)', border:`1.5px solid ${accent}40` }}>
                 <div className="flex items-center justify-between">
                     <span className="text-sm font-bold uppercase tracking-widest" style={{ color:`${accent}cc` }}>Emergency Level</span>
-                    <span className="text-2xl">{criticality==='VERY CRITICAL'?'🔴':'🟠'}</span>
+                    <span className="text-2xl"><span className="w-5 h-5 rounded-full inline-block" style={{ background: criticality==='VERY CRITICAL'?'#ef4444':'#f97316', boxShadow:`0 0 8px ${criticality==='VERY CRITICAL'?'rgba(239,68,68,0.6)':'rgba(249,115,22,0.6)'}` }} /></span>
                 </div>
                 <div className="text-white font-black text-2xl leading-tight">{criticality}</div>
             </div>
 
             {/* Safety notice */}
             <div className="rounded-2xl p-5" style={{ background:'rgba(59,130,246,0.1)', border:'1.5px solid rgba(59,130,246,0.3)' }}>
-                <p className="text-sm font-bold text-blue-300 mb-2">📱 Public Safety Notice</p>
+                <p className="text-sm font-bold text-blue-300 mb-2">Public Safety Notice</p>
                 <p className="text-sm text-white/55 leading-relaxed">When signals show GREEN, an emergency vehicle has priority. Move left and come to a complete stop until the ambulance passes.</p>
             </div>
         </div>
@@ -391,12 +399,12 @@ const ControlRoomDashboard = ({ signals, criticality, setCriticality, eta, arriv
     return (
         <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-2">
-                <StatCard label="Status" value={arrived?'COMPLETE':'ACTIVE'} icon={arrived?'✅':'🟢'} accent={accent} />
-                <StatCard label="ETA" value={eta} icon="⏱️" accent={accent} />
-                <StatCard label="Signals" value={`${greenCount}/${signals.length} 🟢`} accent={accent} />
-                <StatCard label="Vehicles" value={`${carsCleared}/${cars.length} cleared`} icon="🚗" accent={accent} />
+                <StatCard label="Status" value={arrived?'COMPLETE':'ACTIVE'} icon={arrived?'check':'circledot'} accent={accent} />
+                <StatCard label="ETA" value={eta} icon="clock" accent={accent} />
+                <StatCard label="Signals" value={`${greenCount}/${signals.length} OK`} accent={accent} />
+                <StatCard label="Vehicles" value={`${carsCleared}/${cars.length} cleared`} icon="car" accent={accent} />
             </div>
-            <StatCard label="Alert Level" value={criticality} sub="Ambulance criticality" icon={criticality==='VERY CRITICAL'?'🔴':criticality==='CRITICAL'?'🟠':'🟡'} accent={accent} />
+                <StatCard label="Alert Level" value={criticality} sub="Ambulance criticality" icon="warning" accent={accent} />
             <div className="border-t border-white/10 pt-3">
                 <p className="text-xs text-white/40 uppercase tracking-wider mb-2 font-medium">Override Criticality</p>
                 <div className="flex gap-2 flex-wrap">
@@ -421,15 +429,15 @@ const ControlRoomDashboard = ({ signals, criticality, setCriticality, eta, arriv
                     <p className="text-xs text-white/40 uppercase tracking-wider mb-2 font-medium">Hospital ETAs</p>
                     {hospitalETAs.map(h => (
                         <div key={h.id} className="flex justify-between items-center py-1.5 border-b border-white/5">
-                            <span className="text-xs text-white/60">🏥 {h.name}</span>
+                            <span className="text-xs text-white/60">  {h.name}</span>
                             <span className="text-xs font-semibold text-white/80">{h.eta}</span>
                         </div>
                     ))}
                 </div>
             )}
             <div className="flex flex-col gap-2 border-t border-white/10 pt-3">
-                <button onClick={onAutoSelect} className="w-full py-2.5 rounded-xl text-sm font-bold text-white" style={{ background:'linear-gradient(135deg,#6d28d9,#7c3aed)' }}>🏥 Auto-Select Hospital</button>
-                <button onClick={onReset} className="w-full py-2 rounded-xl text-xs font-semibold text-red-400" style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)' }}>↺ Reset Learning</button>
+                <button onClick={onAutoSelect} className="w-full py-2.5 rounded-xl text-sm font-bold text-white" style={{ background:'linear-gradient(135deg,#6d28d9,#7c3aed)' }}>Auto-Select Hospital</button>
+                <button onClick={onReset} className="w-full py-2 rounded-xl text-xs font-semibold text-red-400" style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)' }}>Reset Learning</button>
             </div>
             <div className="rounded-xl p-2.5" style={{ background:'rgba(255,255,255,0.04)' }}>
                 <p className="text-xs text-white/30">Mode: <span className="text-white/60">{isMaster?'MASTER':'FOLLOWER'}</span> · ID: <span className="text-white/50">{deviceId.substr(0,8)}</span></p>
@@ -652,7 +660,7 @@ function MapView({ role = 'ambulance', user = null, setCurrentPage, onLogout = n
                 {route.length>1 && (
                     <Polyline positions={getCorridorPoints()} pathOptions={{ color:getCorridorColor(), weight:6, opacity:0.9 }} />
                 )}
-                <Marker position={currentPosition} icon={makeIcon('🚑',34)}>
+                <Marker position={currentPosition} icon={makeIcon('ambulance', 34)}>
                     <Popup><b>Ambulance</b><br/>Criticality: {criticality}</Popup>
                 </Marker>
                 {signals.map(s => (
@@ -661,8 +669,13 @@ function MapView({ role = 'ambulance', user = null, setCurrentPage, onLogout = n
                     </Marker>
                 ))}
                 {cars.map(car => (
-                    <Marker key={car.id} position={car.position} icon={makeIcon('🚗',26)}>
+                    <Marker key={car.id} position={car.position} icon={makeIcon('car', 26)}>
                         <Popup>Public Vehicle</Popup>
+                    </Marker>
+                ))}
+                {HOSPITALS.filter(h => h.route.length > 0).map(h => (
+                    <Marker key={h.id} position={h.route[h.route.length - 1]} icon={hospitalIcon(38)}>
+                        <Popup><b>🏥 {h.name}</b></Popup>
                     </Marker>
                 ))}
             </MapContainer>
@@ -725,8 +738,16 @@ function MapView({ role = 'ambulance', user = null, setCurrentPage, onLogout = n
                     {/* Top accent line — shimmer */}
                     <div style={{ position:'absolute', top:0, left:0, right:0, height:3, backgroundSize:'200% auto', backgroundImage:`linear-gradient(90deg, transparent 0%, ${cfg.accent}88 30%, ${cfg.accent} 50%, ${cfg.accent}88 70%, transparent 100%)`, animation:'topBarShimmer 3s linear infinite', borderRadius:'0 0 4px 4px' }} />
                     <div className="flex items-center gap-3 mb-4">
-                        <div style={{ width:40, height:40, borderRadius:'50%', background:`linear-gradient(135deg, ${cfg.accent}40, ${cfg.accent}18)`, border:`2.5px solid ${cfg.accent}`, boxShadow:`0 0 14px ${cfg.accent}55, 0 0 28px ${cfg.accent}22`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0 }}>
-                            {cfg.icon}
+                        <div style={{ width:40, height:40, borderRadius:'50%', background:`linear-gradient(135deg, ${cfg.accent}40, ${cfg.accent}18)`, border:`2.5px solid ${cfg.accent}`, boxShadow:`0 0 14px ${cfg.accent}55, 0 0 28px ${cfg.accent}22`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                            {role === 'hospital' ? (
+                                <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                                    <path d="M3 21V8a2 2 0 012-2h14a2 2 0 012 2v13" stroke={cfg.accent} strokeWidth="1.8" strokeLinecap="round"/>
+                                    <path d="M3 21h18M9 21v-6h6v6" stroke={cfg.accent} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                                    <path d="M10 11h4M12 9v4" stroke={cfg.accent} strokeWidth="1.8" strokeLinecap="round"/>
+                                </svg>
+                            ) : (
+                                <span style={{ fontSize: 13, fontWeight: 900, color: cfg.accent, letterSpacing: '0.04em' }}>{cfg.icon}</span>
+                            )}
                         </div>
                         <div>
                             <p style={{ color: cfg.accent, fontSize:10, fontWeight:800, textTransform:'uppercase', letterSpacing:'0.14em', textShadow:`0 0 10px ${cfg.accent}88` }}>GreenNote</p>

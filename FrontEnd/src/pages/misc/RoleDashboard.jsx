@@ -1,56 +1,57 @@
 import React, { useState } from 'react';
+import { Icon, HospitalIcon, TrafficLightIcon, CarIcon, MonitorIcon } from '../../components/Icons';
 
 const ROLE_META = {
   hospital: {
-    icon: '🏥',
+    RoleIcon: HospitalIcon,
     label: 'Hospital',
     accent: '#10b981',
     gradient: 'linear-gradient(135deg, #065f46, #10b981)',
     glow: 'rgba(16,185,129,0.13)',
     stats: [
-      { label: 'Active Cases',   value: '12',   icon: '🩺', sub: 'Currently admitted' },
-      { label: 'Beds Available', value: '8',    icon: '🛏️', sub: 'Out of 20 total' },
-      { label: 'Incoming Today', value: '3',    icon: '🚑', sub: 'Ambulances en route' },
-      { label: 'Avg Wait Time',  value: '6 min', icon: '⏱️', sub: 'Emergency dept.' },
+      { label: 'Active Cases',   value: '12',    icon: 'stethoscope', sub: 'Currently admitted' },
+      { label: 'Beds Available', value: '8',     icon: 'bed',         sub: 'Out of 20 total' },
+      { label: 'Incoming Today', value: '3',     icon: 'ambulance',   sub: 'Ambulances en route' },
+      { label: 'Avg Wait Time',  value: '6 min', icon: 'clock',       sub: 'Emergency dept.' },
     ],
   },
   traffic: {
-    icon: '🚦',
+    RoleIcon: TrafficLightIcon,
     label: 'Traffic Control',
     accent: '#f59e0b',
     gradient: 'linear-gradient(135deg, #78350f, #f59e0b)',
     glow: 'rgba(245,158,11,0.13)',
     stats: [
-      { label: 'Active Corridors', value: '2',     icon: '🛣️', sub: 'Green corridors open' },
-      { label: 'Signals Managed',  value: '14',    icon: '🚦', sub: 'Across city' },
-      { label: 'Incidents Today',  value: '1',     icon: '⚠️', sub: 'Reported blockages' },
-      { label: 'Avg Clear Time',   value: '3 min', icon: '✅', sub: 'Per corridor' },
+      { label: 'Active Corridors', value: '2',     icon: 'road',    sub: 'Green corridors open' },
+      { label: 'Signals Managed',  value: '14',    icon: 'traffic', sub: 'Across city' },
+      { label: 'Incidents Today',  value: '1',     icon: 'warning', sub: 'Reported blockages' },
+      { label: 'Avg Clear Time',   value: '3 min', icon: 'check',   sub: 'Per corridor' },
     ],
   },
   public: {
-    icon: '🚗',
+    RoleIcon: CarIcon,
     label: 'Public / Driver',
     accent: '#3b82f6',
     gradient: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
     glow: 'rgba(59,130,246,0.13)',
     stats: [
-      { label: 'Active Alerts',  value: '2',      icon: '🔔', sub: 'In your area' },
-      { label: 'Nearby Ambul.',  value: '1',      icon: '🚑', sub: 'Active corridor' },
-      { label: 'Reroute Advice', value: 'Active', icon: '🗺️', sub: 'Check map' },
-      { label: 'Your Reports',   value: '0',      icon: '📝', sub: 'This month' },
+      { label: 'Active Alerts',  value: '2',      icon: 'bell',      sub: 'In your area' },
+      { label: 'Nearby Ambul.',  value: '1',      icon: 'ambulance', sub: 'Active corridor' },
+      { label: 'Reroute Advice', value: 'Active', icon: 'map',       sub: 'Check map' },
+      { label: 'Your Reports',   value: '0',      icon: 'notepad',   sub: 'This month' },
     ],
   },
   control_room: {
-    icon: '🖥️',
+    RoleIcon: MonitorIcon,
     label: 'Control Room',
     accent: '#8b5cf6',
     gradient: 'linear-gradient(135deg, #4c1d95, #8b5cf6)',
     glow: 'rgba(139,92,246,0.13)',
     stats: [
-      { label: 'Live Corridors', value: '3',  icon: '🛣️', sub: 'Currently active' },
-      { label: 'Ambulances',     value: '5',  icon: '🚑', sub: 'On duty' },
-      { label: 'Hospitals',      value: '3',  icon: '🏥', sub: 'Connected' },
-      { label: 'Signals Online', value: '14', icon: '🟢', sub: 'All systems nominal' },
+      { label: 'Live Corridors', value: '3',  icon: 'road',      sub: 'Currently active' },
+      { label: 'Ambulances',     value: '5',  icon: 'ambulance', sub: 'On duty' },
+      { label: 'Hospitals',      value: '3',  icon: 'hospital',  sub: 'Connected' },
+      { label: 'Signals Online', value: '14', icon: 'traffic',   sub: 'All systems nominal' },
     ],
   },
 };
@@ -62,7 +63,7 @@ const StatCard = ({ label, value, icon, sub, accent }) => (
   >
     <div className="flex items-center justify-between">
       <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: `${accent}aa` }}>{label}</span>
-      {icon && <span className="text-xl">{icon}</span>}
+      {icon && <Icon name={icon} size={18} color={`${accent}cc`} />}
     </div>
     <div className="text-white font-extrabold text-2xl leading-tight">{value}</div>
     {sub && <div className="text-white/40 text-xs mt-0.5">{sub}</div>}
@@ -72,7 +73,7 @@ const StatCard = ({ label, value, icon, sub, accent }) => (
 const RoleDashboard = ({ user, onLogout, setCurrentPage }) => {
   const role = user?.role || 'hospital';
   const meta = ROLE_META[role] || ROLE_META.hospital;
-  const { icon, label, accent, gradient, glow, stats } = meta;
+  const { RoleIcon, label, accent, gradient, glow, stats } = meta;
 
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
@@ -89,10 +90,10 @@ const RoleDashboard = ({ user, onLogout, setCurrentPage }) => {
       >
         <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold shadow-lg"
+            className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg"
             style={{ background: gradient }}
           >
-            {icon}
+            <RoleIcon size={20} color="#fff" />
           </div>
           <div>
             <h1 className="text-lg font-extrabold tracking-tight text-white leading-none">GreenNote</h1>
@@ -132,7 +133,7 @@ const RoleDashboard = ({ user, onLogout, setCurrentPage }) => {
             <span style={{ background: gradient, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               {user?.name || label}
             </span>{' '}
-            {icon}
+            <RoleIcon size={28} color={accent} />
           </h2>
           <p className="text-white/40 mt-1 text-sm">{user?.email}</p>
         </div>

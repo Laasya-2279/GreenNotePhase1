@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 const ROLES = [
-  { id: 'ambulance', label: '🚑 Ambulance', color: '#ef4444' },
-  { id: 'hospital', label: '🏥 Hospital', color: '#10b981' },
-  { id: 'traffic', label: '🚦 Traffic Control', color: '#f59e0b' },
-  { id: 'public', label: '🚗 Public', color: '#3b82f6' },
-  { id: 'control_room', label: '🖥️ Control Room', color: '#8b5cf6' },
+  { id: 'ambulance', label: 'Ambulance', color: '#ef4444' },
+  { id: 'hospital', label: 'Hospital', color: '#10b981' },
+  { id: 'traffic', label: 'Traffic Control', color: '#f59e0b' },
+  { id: 'public', label: 'Public', color: '#3b82f6' },
+  { id: 'control_room', label: 'Control Room', color: '#8b5cf6' },
 ];
 
 const Navbar = ({ currentPage, setCurrentPage, onRoleSelect }) => {
@@ -108,8 +108,8 @@ const Navbar = ({ currentPage, setCurrentPage, onRoleSelect }) => {
                   }}
                   className="w-full px-4 py-3 text-left text-sm text-white/80 hover:text-white hover:bg-white/8 transition-all duration-150 flex items-center gap-3"
                 >
-                  <span className="text-base">{role.label.split(' ')[0]}</span>
-                  <span>{role.label.split(' ').slice(1).join(' ')}</span>
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: role.color }} />
+                  <span>{role.label}</span>
                   <div className="ml-auto w-2 h-2 rounded-full" style={{ background: role.color }} />
                 </button>
               ))}

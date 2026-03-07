@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import AuroraWavesTrafficBackground from '../../components/AuroraWavesTrafficBackground';
 
-export default function TrafficSignup({ onBack }) {
+export default function TrafficSignup({ onBack, onLoginSuccess }) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -51,7 +51,8 @@ export default function TrafficSignup({ onBack }) {
     setLoading(true);
     setMessage({ text: '', type: '' });
     try {
-      const res = await fetch('http://localhost:5001/api/auth/signup', {
+      const API = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+      const res = await fetch(`${API}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -66,7 +67,30 @@ export default function TrafficSignup({ onBack }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Signup failed');
-      setMessage({ text: '✅ Signup successful! You can now login.', type: 'success' });
+
+      // Auto-login after successful signup
+      const loginRes = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
+      });
+      const loginData = await loginRes.json();
+      if (!loginRes.ok) throw new Error(loginData.message || 'Login failed after signup');
+
+      if (loginData.accessToken) localStorage.setItem('gn_token', loginData.accessToken);
+      if (loginData.refreshToken) localStorage.setItem('gn_refresh_token', loginData.refreshToken);
+
+      const u = loginData.user;
+      const userObj = {
+        id: u._id || u.id,
+        email: u.email,
+        name: u.name,
+        phone: u.phone,
+        role: 'traffic',
+        vehicleNumber: null,
+      };
+
+      if (onLoginSuccess) onLoginSuccess('traffic-dashboard', userObj);
     } catch (err) {
       setMessage({ text: err.message || 'Signup failed', type: 'error' });
     } finally {

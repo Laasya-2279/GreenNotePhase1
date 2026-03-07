@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Icon, TrafficLightIcon, RoadIcon, AmbulanceIcon, SirenIcon, RobotIcon, JoystickIcon, ClipboardIcon, BoltIcon, HospitalIcon } from '../../components/Icons';
 
 // ── Animated background ────────────────────────────────────────────────────
 const TRAFFIC_BG_CSS = `
@@ -119,10 +120,10 @@ const TDASH_CSS = `
 `;
 
 const SIGNAL_MODES = [
-  { id: 'AUTO',      color: '#10b981', icon: '🤖', desc: 'AI-controlled timing' },
-  { id: 'MANUAL',    color: '#f59e0b', icon: '🕹️', desc: 'Officer override active' },
-  { id: 'CORRIDOR',  color: '#3b82f6', icon: '🛣️', desc: 'Green wave in progress' },
-  { id: 'EMERGENCY', color: '#ef4444', icon: '🚨', desc: 'Emergency clearance' },
+  { id: 'AUTO',      color: '#10b981', icon: 'robot',   desc: 'AI-controlled timing' },
+  { id: 'MANUAL',   color: '#f59e0b', icon: 'joystick', desc: 'Officer override active' },
+  { id: 'CORRIDOR', color: '#3b82f6', icon: 'road',    desc: 'Green wave in progress' },
+  { id: 'EMERGENCY',color: '#ef4444', icon: 'siren',   desc: 'Emergency clearance' },
 ];
 
 const LIVE_SIGNALS = [
@@ -148,9 +149,9 @@ const SIGNAL_EVENTS = [
 ];
 
 const URGENCY_STYLE = {
-  VERY_CRITICAL: { bg: 'rgba(239,68,68,0.18)',  border: 'rgba(239,68,68,0.45)',  color: '#ef4444', label: '🔴 VERY CRITICAL' },
-  CRITICAL:      { bg: 'rgba(245,158,11,0.18)', border: 'rgba(245,158,11,0.45)', color: '#f59e0b', label: '🟡 CRITICAL' },
-  STABLE:        { bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.4)',  color: '#10b981', label: '🟢 STABLE' },
+  VERY_CRITICAL: { bg: 'rgba(239,68,68,0.18)',  border: 'rgba(239,68,68,0.45)',  color: '#ef4444', label: 'VERY CRITICAL' },
+  CRITICAL:      { bg: 'rgba(245,158,11,0.18)', border: 'rgba(245,158,11,0.45)', color: '#f59e0b', label: 'CRITICAL' },
+  STABLE:        { bg: 'rgba(16,185,129,0.15)',  border: 'rgba(16,185,129,0.4)',  color: '#10b981', label: 'STABLE' },
 };
 
 const ALL_ACTIVE_CORRIDORS = [
@@ -191,7 +192,7 @@ const StatCard = ({ label, value, icon, sub, accent = '#f59e0b' }) => {
     >
       <div className="flex items-center justify-between">
         <span className="text-sm font-semibold uppercase tracking-widest text-amber-300/70">{label}</span>
-        <span className="text-2xl">{icon}</span>
+        <span style={{ display:'flex' }}><Icon name={icon} size={22} color="#fbbf24" /></span>
       </div>
       <div className="text-white font-extrabold text-3xl leading-tight">{value}</div>
       {sub && <div className="text-white/40 text-sm mt-0.5">{sub}</div>}
@@ -233,7 +234,7 @@ const MiniMapTraffic = ({ onOpenMap }) => (
       ))}
       {/* Ambulance icon approx */}
       <circle cx="280" cy="85" r="7" fill="rgba(245,158,11,0.9)" />
-      <text x="277" y="90" fontSize="8" fill="white">🚑</text>
+      <text x="278" y="89" fontSize="9" fill="white" fontWeight="bold">+</text>
     </svg>
     {/* Scan line */}
     <div style={{ position:'absolute', left:0, right:0, height:'2px',
@@ -307,7 +308,7 @@ const TrafficDashboard = ({ user, onLogout, setCurrentPage }) => {
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black shadow-lg"
-            style={{ background:'linear-gradient(135deg,#f59e0b,#78350f)', boxShadow:'0 0 20px rgba(245,158,11,0.4)' }}>🚦</div>
+            style={{ background:'linear-gradient(135deg,#f59e0b,#78350f)', boxShadow:'0 0 20px rgba(245,158,11,0.4)' }}><TrafficLightIcon size={20} color="white"/></div>
           <div>
             <div className="text-base font-black text-white tracking-tight leading-none">GreenNote</div>
             <div className="text-xs font-semibold tracking-wider" style={{ color:'#f59e0b' }}>TRAFFIC CONTROL</div>
@@ -316,7 +317,7 @@ const TrafficDashboard = ({ user, onLogout, setCurrentPage }) => {
 
         {/* Nav tabs */}
         <div className="hidden md:flex items-center gap-1 p-1 rounded-xl" style={{ background:'rgba(255,255,255,0.05)' }}>
-          {[['dashboard','🚦 Dashboard'],['corridors','🛣️ Active Corridors'],['events','⚡ Signal Events']].map(([id, lbl]) => (
+          {[['dashboard','Dashboard'],['corridors','Active Corridors'],['events','Signal Events']].map(([id, lbl]) => (
             <button key={id} onClick={() => setView(id)}
               className="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200"
               style={view === id
@@ -341,7 +342,7 @@ const TrafficDashboard = ({ user, onLogout, setCurrentPage }) => {
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
             style={{ background:`${currentModeObj.color}22`, border:`1px solid ${currentModeObj.color}55`, color:currentModeObj.color }}>
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ background:currentModeObj.color }} />
-            {currentModeObj.icon} {signalMode}
+            <Icon name={currentModeObj.icon} size={14} color={currentModeObj.color} /> {signalMode}
           </div>
           <button onClick={onLogout}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white/60 hover:text-white transition-colors hover:bg-white/10">
@@ -377,24 +378,24 @@ const TrafficDashboard = ({ user, onLogout, setCurrentPage }) => {
                       <span className="text-base font-bold text-white/70">{c.id}</span>
                       <span className="text-sm font-bold px-3 py-1 rounded-full"
                         style={{ background:ug.bg, color:ug.color, border:`1px solid ${ug.border}` }}>
-                        {c.urgency === 'VERY_CRITICAL' ? '🔴 VERY CRITICAL' : c.urgency === 'CRITICAL' ? '🟡 CRITICAL' : '🟢 STABLE'}
+                        {c.urgency === 'VERY_CRITICAL' ? 'VERY CRITICAL' : c.urgency === 'CRITICAL' ? 'CRITICAL' : 'STABLE'}
                       </span>
                     </div>
                     <span className="text-sm font-bold" style={{ color:ug.color }}>ETA: {c.eta} min</span>
                   </div>
                   <div className="flex items-center gap-2 text-base text-white/80 mb-4">
-                    <span>🏥 {c.src}</span>
+                    <span>{c.src}</span>
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke={ug.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     <span>{c.dst}</span>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                     <div className="bg-black/30 rounded-xl px-4 py-3">
                       <div className="text-sm text-white/35 mb-1">Organ</div>
-                      <div className="text-base font-semibold text-white">🫀 {c.organ}</div>
+                      <div className="text-base font-semibold text-white">{c.organ}</div>
                     </div>
                     <div className="bg-black/30 rounded-xl px-4 py-3">
                       <div className="text-sm text-white/35 mb-1">Ambulance</div>
-                      <div className="text-base font-semibold text-white">🚑 {c.ambulance}</div>
+                      <div className="text-base font-semibold text-white">{c.ambulance}</div>
                     </div>
                     <div className="bg-black/30 rounded-xl px-4 py-3">
                       <div className="text-sm text-white/35 mb-1">Driver</div>
@@ -474,23 +475,23 @@ const TrafficDashboard = ({ user, onLogout, setCurrentPage }) => {
               Welcome,{' '}
               <span style={{ background:'linear-gradient(135deg,#f59e0b,#fcd34d)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
                 {user?.name || 'Officer'}
-              </span>{' '}🚦
+              </span>{' '}Officer
             </h2>
             <p className="text-white/40 mt-1 text-base">{user?.email} &nbsp;·&nbsp; Traffic Signal Command Centre</p>
           </div>
           {/* Incident count chip */}
           <div className="flex items-center gap-2 px-4 py-2 rounded-2xl text-base font-bold mt-1"
             style={{ background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.3)', color:'#ef4444' }}>
-            🚨 2 Active Emergencies
+            <SirenIcon size={14} color="#ef4444" /> 2 Active Emergencies
           </div>
         </div>
 
         {/* Stats row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
-          <StatCard label="Active Corridors"   value={ACTIVE_CORRIDORS.length}  icon="🛣️"  sub="Live green lanes"       />
-          <StatCard label="Signals Overridden" value={overrideCount}            icon="🚦"  sub="Manual control active"  />
-          <StatCard label="Corridors Today"    value="6"                        icon="📋"  sub="Completed since 00:00"  />
-          <StatCard label="Avg Override Time"  value="3m 45s"                  icon="⚡"  sub="Signal clearance avg"   />
+          <StatCard label="Active Corridors"   value={ACTIVE_CORRIDORS.length}  icon="road"      sub="Live green lanes"       />
+          <StatCard label="Signals Overridden" value={overrideCount}            icon="traffic"   sub="Manual control active"  />
+          <StatCard label="Corridors Today"    value="6"                        icon="clipboard" sub="Completed since 00:00"  />
+          <StatCard label="Avg Override Time"  value="3m 45s"                  icon="bolt"      sub="Signal clearance avg"   />
         </div>
 
         {/* Main 3-column grid */}
@@ -518,13 +519,13 @@ const TrafficDashboard = ({ user, onLogout, setCurrentPage }) => {
                       <span className="text-sm font-bold text-white/60">{c.id}</span>
                       <span className="text-sm font-bold px-2.5 py-0.5 rounded-full"
                         style={{ background:ug.bg, color:ug.color, border:`1px solid ${ug.border}` }}>
-                        {c.urgency === 'VERY_CRITICAL' ? '🔴 CRIT' : '🟡 CRIT'}
+                        {c.urgency === 'VERY_CRITICAL' ? 'CRIT' : 'CRIT'}
                       </span>
                     </div>
-                    <div className="text-sm text-white/70 mb-1">🏥 {c.src}</div>
+                    <div className="text-sm text-white/70 mb-1">{c.src}</div>
                     <div className="text-sm text-white/70 mb-2">→ {c.dst}</div>
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-sm text-amber-300/70">🫀 {c.organ}</span>
+                      <span className="text-sm text-amber-300/70">{c.organ}</span>
                       <span className="text-sm text-white/40">ETA: {c.eta}</span>
                     </div>
                     {/* Progress bar */}
@@ -608,7 +609,7 @@ const TrafficDashboard = ({ user, onLogout, setCurrentPage }) => {
                       color: signalMode === m.id ? m.color : 'rgba(255,255,255,0.45)',
                       boxShadow: signalMode === m.id ? `0 0 14px ${m.color}25` : 'none',
                     }}>
-                    <span className="text-xl">{m.icon}</span>
+                    <span className="text-xl"><Icon name={m.icon} size={20} /></span>
                     <div>
                       <div>{m.id}</div>
                       <div className="text-sm font-normal opacity-60 mt-0.5">{m.desc}</div>

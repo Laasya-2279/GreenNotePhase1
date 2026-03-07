@@ -1,39 +1,40 @@
 import AuroraWavesBackground from '../../components/AuroraWavesBackground';
 import AnimatedStarfieldBackground from '../../components/AnimatedStarfieldBackground';
 import React, { useState } from 'react';
+import { AmbulanceIcon, HospitalIcon, TrafficLightIcon, CarIcon } from '../../components/Icons';
 import AmbulanceSignup from '../ambulance/AmbulanceSignup';
 import HospitalSignup from '../hospital/HospitalSignup';
 import TrafficSignup from '../traffic/TrafficSignup';
 import PublicSignup from '../public/PublicSignup';
 
 const ROLES = [
-  { id: 'ambulance', icon: '🚑', label: 'Ambulance', color: '#ef4444' },
-  { id: 'hospital', icon: '🏥', label: 'Hospital', color: '#10b981' },
-  { id: 'traffic', icon: '🚦', label: 'Traffic Control', color: '#f59e0b' },
-  { id: 'public', icon: '🚗', label: 'Public', color: '#3b82f6' },
+  { id: 'ambulance', Icon: AmbulanceIcon, label: 'Ambulance', color: '#ef4444' },
+  { id: 'hospital', Icon: HospitalIcon, label: 'Hospital', color: '#10b981' },
+  { id: 'traffic', Icon: TrafficLightIcon, label: 'Traffic Control', color: '#f59e0b' },
+  { id: 'public', Icon: CarIcon, label: 'Public', color: '#3b82f6' },
 ];
 
-export default function Signup({ onBack }) {
+export default function Signup({ onBack, onLoginSuccess }) {
   const [selectedRole, setSelectedRole] = useState(null);
   console.log('Signup render: selectedRole =', selectedRole);
 
   // Show AmbulanceSignup if ambulance is selected
   if (selectedRole === 'ambulance') {
     console.log('Rendering AmbulanceSignup');
-    return <AmbulanceSignup onBack={() => setSelectedRole(null)} />;
+    return <AmbulanceSignup onBack={() => setSelectedRole(null)} onLoginSuccess={onLoginSuccess} />;
   }
   // Show HospitalSignup if hospital is selected
   if (selectedRole === 'hospital') {
     console.log('Rendering HospitalSignup');
-    return <HospitalSignup onBack={() => setSelectedRole(null)} />;
+    return <HospitalSignup onBack={() => setSelectedRole(null)} onLoginSuccess={onLoginSuccess} />;
   }
   // Show TrafficSignup if traffic control is selected
   if (selectedRole === 'traffic') {
-    return <TrafficSignup onBack={() => setSelectedRole(null)} />;
+    return <TrafficSignup onBack={() => setSelectedRole(null)} onLoginSuccess={onLoginSuccess} />;
   }
   // Show PublicSignup if public is selected
   if (selectedRole === 'public') {
-    return <PublicSignup onBack={() => setSelectedRole(null)} />;
+    return <PublicSignup onBack={() => setSelectedRole(null)} onLoginSuccess={onLoginSuccess} />;
   }
 
   return (
@@ -70,7 +71,7 @@ export default function Signup({ onBack }) {
               className={`group flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-2xl shadow-lg transition-all duration-200 border-2 font-bold text-lg ${selectedRole === role.id ? 'scale-105 border-white/80 bg-white/10' : 'border-white/20 bg-white/5 hover:scale-105 hover:border-white/40'}`}
               style={{ color: role.color, boxShadow: selectedRole === role.id ? `0 0 24px 0 ${role.color}55` : undefined }}
             >
-              <span className="text-3xl drop-shadow-lg">{role.icon}</span>
+              <span className="drop-shadow-lg"><role.Icon size={32} color={role.color} /></span>
               <span className="text-white text-base font-semibold drop-shadow-lg">{role.label}</span>
             </button>
           ))}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Icon, CheckCircleIcon, MonitorIcon, InboxDownIcon, RoadIcon, AmbulanceIcon, RadioIcon, HospitalIcon, MapIcon, WrenchIcon, WarningIcon, MapPinIcon, ClipboardIcon } from '../../components/Icons';
 
 // ── Animated background ────────────────────────────────────────────────────
 const CTRL_BG_CSS = `
@@ -15,6 +16,24 @@ const CTRL_BG_CSS = `
     0%   { transform: rotate(45deg) scale(1);     opacity: 0.15; }
     50%  { transform: rotate(225deg) scale(1.08); opacity: 0.28; }
     100% { transform: rotate(405deg) scale(1);    opacity: 0.15; }
+  }
+  .cr-dark-scroll::-webkit-scrollbar {
+    width: 5px;
+  }
+  .cr-dark-scroll::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.03);
+    border-radius: 999px;
+  }
+  .cr-dark-scroll::-webkit-scrollbar-thumb {
+    background: rgba(139,92,246,0.35);
+    border-radius: 999px;
+  }
+  .cr-dark-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(139,92,246,0.6);
+  }
+  .cr-dark-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139,92,246,0.35) rgba(255,255,255,0.03);
   }
 `;
 
@@ -107,10 +126,10 @@ const CRDASH_CSS = `
 `;
 
 const SYS_STATES = [
-  { id:'OPERATIONAL', color:'#10b981', icon:'✅', desc:'All services nominal' },
-  { id:'MAINTENANCE',  color:'#f59e0b', icon:'🔧', desc:'Scheduled downtime' },
-  { id:'DEGRADED',    color:'#ef4444', icon:'⚠️',  desc:'Partial outage detected' },
-  { id:'OFFLINE',     color:'#6b7280', icon:'🔴', desc:'Full system down' },
+  { id:'OPERATIONAL', color:'#10b981', icon:'check',     desc:'All services nominal' },
+  { id:'MAINTENANCE',  color:'#f59e0b', icon:'wrench',   desc:'Scheduled downtime' },
+  { id:'DEGRADED',    color:'#ef4444', icon:'warning',   desc:'Partial outage detected' },
+  { id:'OFFLINE',     color:'#6b7280', icon:'circledot', desc:'Full system down' },
 ];
 
 const PENDING_REQUESTS = [
@@ -133,12 +152,12 @@ const AUDIT_LOGS = [
 ];
 
 const URGENCY_STYLE = {
-  VERY_CRITICAL: { bg:'rgba(239,68,68,0.18)',  border:'rgba(239,68,68,0.45)',  color:'#ef4444', label:'🔴 VERY CRITICAL' },
-  CRITICAL:      { bg:'rgba(245,158,11,0.18)', border:'rgba(245,158,11,0.45)', color:'#f59e0b', label:'🟡 CRITICAL' },
-  STABLE:        { bg:'rgba(16,185,129,0.15)', border:'rgba(16,185,129,0.4)',  color:'#10b981', label:'🟢 STABLE' },
+  VERY_CRITICAL: { bg:'rgba(239,68,68,0.18)',  border:'rgba(239,68,68,0.45)',  color:'#ef4444', label:'VERY CRITICAL' },
+  CRITICAL:      { bg:'rgba(245,158,11,0.18)', border:'rgba(245,158,11,0.45)', color:'#f59e0b', label:'CRITICAL' },
+  STABLE:        { bg:'rgba(16,185,129,0.15)', border:'rgba(16,185,129,0.4)',  color:'#10b981', label:'STABLE' },
 };
 
-const ORGAN_ICON = { Heart:'🫀', Kidney:'🫘', Liver:'🟤', Lungs:'🫁', Cornea:'👁️', Pancreas:'🟣', Tissue:'🩹', Intestine:'🌿' };
+const ORGAN_ICON = { Heart:'heart', Kidney:'kidney', Liver:'liver', Lungs:'lungs', Cornea:'eye', Pancreas:'pancreas', Tissue:'testtube', Intestine:'testtube' };
 
 // ── Sub-components ────────────────────────────────────────────────────────
 const CRStatCard = ({ label, value, icon, sub, pulse = false }) => {
@@ -153,7 +172,7 @@ const CRStatCard = ({ label, value, icon, sub, pulse = false }) => {
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold uppercase tracking-widest text-violet-300/70">{label}</span>
-        <span className="text-xl" style={pulse ? { animation:'crPulse 1.6s ease infinite' } : {}}>{icon}</span>
+        <span style={pulse ? { animation:'crPulse 1.6s ease infinite' } : {}}><Icon name={icon} size={20} color="#c4b5fd" /></span>
       </div>
       <div className="text-white font-extrabold text-2xl leading-tight">{value}</div>
       {sub && <div className="text-white/40 text-xs mt-0.5">{sub}</div>}
@@ -191,9 +210,9 @@ const MiniMapCtrl = ({ onOpenMap }) => (
       ))}
       {/* Ambulances */}
       <circle cx="240" cy="78" r="7" fill="rgba(239,68,68,0.9)"/>
-      <text x="237" y="83" fontSize="8" fill="white">🚑</text>
+      <text x="237" y="83" fontSize="9" fill="white" fontWeight="bold">+</text>
       <circle cx="200" cy="116" r="7" fill="rgba(245,158,11,0.9)"/>
-      <text x="197" y="121" fontSize="8" fill="white">🚑</text>
+      <text x="197" y="121" fontSize="9" fill="white" fontWeight="bold">+</text>
     </svg>
     <div style={{ position:'absolute', left:0, right:0, height:'2px', top:0,
       background:'linear-gradient(90deg,transparent,rgba(139,92,246,0.6),transparent)',
@@ -209,7 +228,7 @@ const MiniMapCtrl = ({ onOpenMap }) => (
       </div>
       <button className="self-end flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold"
         style={{ background:'rgba(139,92,246,0.25)', border:'1px solid rgba(139,92,246,0.5)', color:'#c4b5fd' }}>
-        🗺️ Full Map →
+        <MapIcon size={12} color="#c4b5fd" /> Full Map →
       </button>
     </div>
   </div>
@@ -286,7 +305,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
         {/* Logo */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg font-black shadow-lg"
-            style={{ background:'linear-gradient(135deg,#8b5cf6,#3b0764)', boxShadow:'0 0 20px rgba(139,92,246,0.4)' }}>🖥️</div>
+            style={{ background:'linear-gradient(135deg,#8b5cf6,#3b0764)', boxShadow:'0 0 20px rgba(139,92,246,0.4)' }}><MonitorIcon size={20} color="white"/></div>
           <div>
             <div className="text-base font-black text-white tracking-tight leading-none">GreenNote</div>
             <div className="text-xs font-semibold tracking-wider" style={{ color:'#8b5cf6' }}>CONTROL ROOM</div>
@@ -295,7 +314,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
 
         {/* Nav tabs */}
         <div className="hidden md:flex items-center gap-1 p-1 rounded-xl" style={{ background:'rgba(255,255,255,0.05)' }}>
-          {[['dashboard','🖥️ Dashboard'],['requests','📥 View Requests'],['auditlog','📋 View Audit Log']].map(([id, lbl]) => (
+          {[['dashboard','Dashboard'],['requests','View Requests'],['auditlog','View Audit Log']].map(([id, lbl]) => (
             <button key={id} onClick={() => setView(id)}
               className="px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200"
               style={view === id
@@ -320,7 +339,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
             style={{ background:`${sysObj.color}22`, border:`1px solid ${sysObj.color}55`, color:sysObj.color }}>
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ background:sysObj.color }} />
-            {sysObj.icon} {sysStatus}
+            <Icon name={sysObj.icon} size={14} color={sysObj.color} /> {sysStatus}
           </div>
           <button onClick={onLogout}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-white/60 hover:text-white transition-colors hover:bg-white/10">
@@ -348,7 +367,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
 
           {pendingList.length === 0 ? (
             <div className="rounded-2xl p-16 text-center" style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)' }}>
-              <div className="text-4xl mb-3">✅</div>
+              <div className="mb-3"><CheckCircleIcon size={40} color="#10b981" /></div>
               <div className="text-white/50 text-lg font-semibold">All requests have been processed</div>
               <div className="text-white/30 text-sm mt-1">Check back when new corridor requests arrive</div>
             </div>
@@ -367,25 +386,25 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                           <span className="text-sm font-bold text-white/60">{req.id}</span>
                           <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
                             style={{ background:ug.bg, color:ug.color, border:`1px solid ${ug.border}` }}>
-                            {req.urgency === 'VERY_CRITICAL' ? '🔴' : req.urgency === 'CRITICAL' ? '🟡' : '🟢'} {req.urgency.replace('_',' ')}
+                            {req.urgency.replace('_',' ')}
                           </span>
                           {req.vehicleReady
-                            ? <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background:'rgba(16,185,129,0.15)', color:'#10b981', border:'1px solid rgba(16,185,129,0.35)' }}>🚑 Vehicle Ready</span>
-                            : <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background:'rgba(239,68,68,0.12)', color:'#ef4444', border:'1px solid rgba(239,68,68,0.3)' }}>⚠️ No Vehicle</span>
+                            ? <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background:'rgba(16,185,129,0.15)', color:'#10b981', border:'1px solid rgba(16,185,129,0.35)' }}>Vehicle Ready</span>
+                            : <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background:'rgba(239,68,68,0.12)', color:'#ef4444', border:'1px solid rgba(239,68,68,0.3)' }}>No Vehicle</span>
                           }
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                           <div className="bg-black/30 rounded-xl px-4 py-3">
                             <div className="text-xs text-white/35 mb-1">Organ</div>
-                            <div className="text-sm font-bold text-white">{ORGAN_ICON[req.organ] || '🏥'} {req.organ}</div>
+                            <div className="text-sm font-bold text-white flex items-center gap-1"><Icon name={ORGAN_ICON[req.organ] || 'hospital'} size={13} color="#c4b5fd" />{req.organ}</div>
                           </div>
                           <div className="bg-black/30 rounded-xl px-4 py-3">
                             <div className="text-xs text-white/35 mb-1">From</div>
-                            <div className="text-sm font-semibold text-white truncate">🏥 {req.src}</div>
+                            <div className="text-sm font-semibold text-white truncate">{req.src}</div>
                           </div>
                           <div className="bg-black/30 rounded-xl px-4 py-3">
                             <div className="text-xs text-white/35 mb-1">To</div>
-                            <div className="text-sm font-semibold text-white truncate">📍 {req.dst}</div>
+                            <div className="text-sm font-semibold text-white truncate">{req.dst}</div>
                           </div>
                           <div className="bg-black/30 rounded-xl px-4 py-3">
                             <div className="text-xs text-white/35 mb-1">Requested By</div>
@@ -394,7 +413,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                           </div>
                         </div>
                         <div className="text-xs text-white/45 bg-black/20 rounded-lg px-4 py-2.5 border-l-2" style={{ borderColor:ug.color }}>
-                          📝 {req.notes}
+                          {req.notes}
                         </div>
                       </div>
                       {/* Action buttons */}
@@ -402,12 +421,12 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                         <button onClick={() => handleApprove(req.id)}
                           className="cr-btn px-5 py-2.5 rounded-xl text-sm font-bold"
                           style={{ background:'rgba(16,185,129,0.2)', color:'#10b981', border:'1px solid rgba(16,185,129,0.45)' }}>
-                          ✅ Approve
+                          ✓ Approve
                         </button>
                         <button onClick={() => handleReject(req.id)}
                           className="cr-btn px-5 py-2.5 rounded-xl text-sm font-bold"
                           style={{ background:'rgba(239,68,68,0.14)', color:'#ef4444', border:'1px solid rgba(239,68,68,0.38)' }}>
-                          ❌ Reject
+                          ✕ Reject
                         </button>
                       </div>
                     </div>
@@ -444,7 +463,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                   style={auditFilter === a
                     ? { background:'rgba(139,92,246,0.25)', color:'#c4b5fd', border:'1px solid rgba(139,92,246,0.5)' }
                     : { background:'rgba(255,255,255,0.05)', color:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.08)' }}>
-                  {a === 'ALL' ? '🔍 ALL' : a.replace(/_/g,' ')}
+                  {a === 'ALL' ? 'ALL' : a.replace(/_/g,' ')}
                 </button>
               ))}
             </div>
@@ -508,22 +527,22 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
               Welcome,{' '}
               <span style={{ background:'linear-gradient(135deg,#8b5cf6,#c4b5fd)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>
                 {user?.name || 'Operator'}
-              </span>{' '}🖥️
+              </span>
             </h2>
             <p className="text-white/40 mt-1 text-sm">{user?.email} &nbsp;·&nbsp; Central Operations — Full System View</p>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold mt-1"
             style={{ background:'rgba(245,158,11,0.12)', border:'1px solid rgba(245,158,11,0.35)', color:'#f59e0b' }}>
-            📥 {pendingList.length} Pending Approval{pendingList.length !== 1 ? 's' : ''}
+            <InboxDownIcon size={14} color="#f59e0b" /> {pendingList.length} Pending Approval{pendingList.length !== 1 ? 's' : ''}
           </div>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
-          <CRStatCard label="Pending Approvals"  value={pendingList.length}           icon="📥" sub="Awaiting your action"    pulse={pendingList.length > 0} />
-          <CRStatCard label="Active Corridors"   value={ACTIVE_CORRIDORS_CR.length}   icon="🛣️" sub="In progress now"         />
-          <CRStatCard label="Ambulances Online"  value="12"                           icon="🚑" sub="GPS connected"           />
-          <CRStatCard label="System Uptime"      value="99.8%"                        icon="📡" sub="Last 30 days"            />
+          <CRStatCard label="Pending Approvals"  value={pendingList.length}           icon="inboxdown" sub="Awaiting your action"    pulse={pendingList.length > 0} />
+          <CRStatCard label="Active Corridors"   value={ACTIVE_CORRIDORS_CR.length}   icon="road" sub="In progress now"         />
+          <CRStatCard label="Ambulances Online"  value="12"                           icon="ambulance" sub="GPS connected"           />
+          <CRStatCard label="System Uptime"      value="99.8%"                        icon="radio" sub="Last 30 days"            />
         </div>
 
         {/* Main grid */}
@@ -549,10 +568,10 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
 
               {pendingList.length === 0 ? (
                 <div className="text-center py-8 text-white/30 text-sm">
-                  ✅ All requests processed
+                  All requests processed
                 </div>
               ) : (
-                <div className="flex flex-col gap-3 overflow-y-auto" style={{ maxHeight:'calc(100vh - 320px)' }}>
+                <div className="flex flex-col gap-3 overflow-y-auto cr-dark-scroll" style={{ maxHeight:'calc(100vh - 320px)' }}>
                   {pendingList.map(req => {
                     const ug = URGENCY_STYLE[req.urgency];
                     const isRej = rejecting === req.id;
@@ -569,25 +588,25 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                           <span className="text-xs font-bold text-white/60">{req.id}</span>
                           <span className="text-xs font-bold px-2 py-0.5 rounded-full"
                             style={{ background:ug.bg, color:ug.color, border:`1px solid ${ug.border}` }}>
-                            {req.urgency === 'VERY_CRITICAL' ? '🔴' : req.urgency === 'CRITICAL' ? '🟡' : '🟢'} {req.urgency.replace('_', ' ')}
+                            {req.urgency.replace('_', ' ')}
                           </span>
                         </div>
-                        <div className="text-xs text-white/80 font-semibold mb-1">
-                          {ORGAN_ICON[req.organ] || '🏥'} {req.organ} Transport
+                        <div className="text-xs text-white/80 font-semibold mb-1 flex items-center gap-1">
+                          <Icon name={ORGAN_ICON[req.organ] || 'hospital'} size={12} color="#c4b5fd" /> {req.organ} Transport
                         </div>
-                        <div className="text-xs text-white/50 mb-0.5">🏥 {req.src}</div>
+                        <div className="text-xs text-white/50 mb-0.5">{req.src}</div>
                         <div className="text-xs text-white/50 mb-2">→ {req.dst}</div>
                         <div className="text-xs text-violet-300/50 mb-3">By {req.requestedBy} · {req.timeAgo}</div>
                         <div className="flex gap-2">
                           <button onClick={() => handleApprove(req.id)}
                             className="cr-btn flex-1 py-1.5 rounded-lg text-xs font-bold"
                             style={{ background:'rgba(16,185,129,0.2)', color:'#10b981', border:'1px solid rgba(16,185,129,0.45)' }}>
-                            ✅ Approve
+                            ✓ Approve
                           </button>
                           <button onClick={() => handleReject(req.id)}
                             className="cr-btn flex-1 py-1.5 rounded-lg text-xs font-bold"
                             style={{ background:'rgba(239,68,68,0.15)', color:'#ef4444', border:'1px solid rgba(239,68,68,0.4)' }}>
-                            ❌ Reject
+                            ✕ Reject
                           </button>
                         </div>
                       </div>
@@ -616,12 +635,12 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                         <span className="text-sm font-bold text-white">{c.id}</span>
                         <span className="text-xs font-bold px-2.5 py-0.5 rounded-full"
                           style={{ background:ug.bg, color:ug.color, border:`1px solid ${ug.border}` }}>
-                          {c.urgency === 'VERY_CRITICAL' ? '🔴 VERY CRITICAL' : '🟡 CRITICAL'}
+                          {c.urgency === 'VERY_CRITICAL' ? 'VERY CRITICAL' : 'CRITICAL'}
                         </span>
                       </div>
                       {/* Route */}
                       <div className="flex items-center gap-2 text-sm text-white/80 mb-3">
-                        <span>🏥 {c.src}</span>
+                        <span>{c.src}</span>
                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke={ug.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         <span>{c.dst}</span>
                       </div>
@@ -629,7 +648,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                       <div className="grid grid-cols-2 gap-2 mb-3">
                         <div className="bg-black/30 rounded-lg px-3 py-2">
                           <div className="text-xs text-white/35 mb-0.5">Organ</div>
-                          <div className="text-sm font-semibold text-white">{ORGAN_ICON[c.organ]} {c.organ}</div>
+                          <div className="text-sm font-semibold text-white flex items-center gap-1"><Icon name={ORGAN_ICON[c.organ] || 'heart'} size={13} color="#c4b5fd" />{c.organ}</div>
                         </div>
                         <div className="bg-black/30 rounded-lg px-3 py-2">
                           <div className="text-xs text-white/35 mb-0.5">ETA Remaining</div>
@@ -637,7 +656,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                         </div>
                         <div className="bg-black/30 rounded-lg px-3 py-2">
                           <div className="text-xs text-white/35 mb-0.5">Ambulance</div>
-                          <div className="text-sm font-semibold text-white">🚑 {c.ambulance}</div>
+                          <div className="text-sm font-semibold text-white">{c.ambulance}</div>
                         </div>
                         <div className="bg-black/30 rounded-lg px-3 py-2">
                           <div className="text-xs text-white/35 mb-0.5">Driver</div>
@@ -749,7 +768,7 @@ const ControlRoomDashboard = ({ user, onLogout, setCurrentPage }) => {
                       color: sysStatus === s.id ? s.color : 'rgba(255,255,255,0.45)',
                       boxShadow: sysStatus === s.id ? `0 0 14px ${s.color}22` : 'none',
                     }}>
-                    <span>{s.icon}</span>
+                    <Icon name={s.icon} size={16} color={s.color} />
                     <div>
                       <div>{s.id}</div>
                       <div className="text-xs font-normal opacity-60 mt-0.5">{s.desc}</div>
