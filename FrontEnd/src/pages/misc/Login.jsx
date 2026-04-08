@@ -34,7 +34,7 @@ const ROLES = [
   { id: 'control_room', label: 'Control Room', color: '#8b5cf6' },
 ];
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001/api';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://greennotephase.onrender.com/api';
 
 // Role mapping: backend uses uppercase, frontend uses lowercase
 const ROLE_MAP_TO_FRONTEND = {
